@@ -13,42 +13,41 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
-class MenuItemListener implements ActionListener {
+class Send2XrayListener implements ActionListener {
 
-//    private String tunnelHost = "127.0.0.1";
-//    private String tunnelPort = "9999";
     private final IHttpRequestResponse[] arr;
-    private final BurpExtender burpExtender;
     private final SSLSocketFactory factory;
     private String proxyHost;
     private int proxyPort;
+    private final Send2Xray send2xray;
 
-    public MenuItemListener(BurpExtender burpExtender, IHttpRequestResponse[] arr) throws NoSuchAlgorithmException, KeyManagementException {
-            SSLContext sslContext = SSLContext.getInstance("SSL");
-            // set up a TrustManager that trusts everything
-            sslContext.init(null, new TrustManager[] {new X509TrustManager() {
+    public Send2XrayListener(Send2Xray send2xray, IHttpRequestResponse[] arr) throws NoSuchAlgorithmException, KeyManagementException {
+        SSLContext sslContext = SSLContext.getInstance("SSL");
+        // set up a TrustManager that trusts everything
+        sslContext.init(null, new TrustManager[] {new X509TrustManager() {
             public X509Certificate[] getAcceptedIssuers() { return null;}
             public void checkClientTrusted(X509Certificate[] certs, String authType) {}
             public void checkServerTrusted(X509Certificate[] certs, String authType) {}
         } }, new SecureRandom());
+
         this.factory = sslContext.getSocketFactory();
-        this.burpExtender = burpExtender;
+        this.send2xray = send2xray;
         this.arr = arr;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        this.proxyHost = this.burpExtender.send2xray.getHost();
-        this.proxyPort = this.burpExtender.send2xray.getPort();
+        this.proxyHost = this.send2xray.getHost();
+        this.proxyPort = this.send2xray.getPort();
         for (IHttpRequestResponse message : this.arr) {
-            IRequestInfo ir = this.burpExtender.helpers.analyzeRequest(message);
+            IRequestInfo ir = BurpExtender.helpers.analyzeRequest(message);
             List<String> newHeader = ir.getHeaders();
             newHeader.set(0, ir.getMethod() + " " + ir.getUrl() + " HTTP/1.1");
             String protocol = message.getHttpService().getProtocol(); // https
             String host = message.getHttpService().getHost();
             int port = message.getHttpService().getPort();
             byte[] body = Arrays.copyOfRange(message.getRequest(),ir.getBodyOffset(),message.getRequest().length);
-            byte[] proxy_request = this.burpExtender.helpers.buildHttpMessage(newHeader,body);
+            byte[] proxy_request = BurpExtender.helpers.buildHttpMessage(newHeader,body);
             Socket socket;
             SSLSocket sslSocket = null;
             try {
@@ -92,8 +91,8 @@ class MenuItemListener implements ActionListener {
                     }
                 }
             } catch (IOException ioException) {
-                this.burpExtender.send2xray.setLabelStatus("fail");
-                BurpExtender.stdout.println(ioException);
+                this.send2xray.setLabelStatus("fail");
+                BurpExtender.stderr.println(ioException);
             }
         }
     }
