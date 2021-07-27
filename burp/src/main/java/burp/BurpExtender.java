@@ -28,8 +28,8 @@ public class BurpExtender implements IBurpExtender,ITab,IContextMenuFactory,IExt
         send2xray = new Send2Xray();
         this.tabPane.addTab("Send2Xray", send2xray);
         this.tabPane.addTab("AES", new AESTab());
-        this.tabPane.addTab("DES", new DefaultTab());
-        this.tabPane.addTab("3DES", new DefaultTab());
+        this.tabPane.addTab("DES", new TestTab());
+        this.tabPane.addTab("3DES", new TestTab());
 
         callbacks.addSuiteTab(BurpExtender.this);
         callbacks.registerContextMenuFactory(this);
