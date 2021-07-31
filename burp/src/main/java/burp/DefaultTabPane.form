@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="burp.DefaultTabPane">
   <grid id="27dc6" binding="mainPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
-      <xy x="47" y="40" width="1012" height="602"/>
+      <xy x="47" y="40" width="1139" height="793"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -27,7 +27,7 @@
               <grid id="e185b" binding="globalSettingPanel" layout-manager="GridBagLayout">
                 <constraints/>
                 <properties/>
-                <border type="etched" title="golobal setting" title-position="3"/>
+                <border type="etched" title="Golobal setting"/>
                 <children>
                   <component id="41803" class="javax.swing.JLabel">
                     <constraints>
@@ -35,7 +35,7 @@
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
-                      <text value="type"/>
+                      <text value="algorithm"/>
                     </properties>
                   </component>
                   <component id="d3fa6" class="javax.swing.JLabel">
@@ -44,7 +44,7 @@
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
-                      <text value="key"/>
+                      <text value="secret key"/>
                     </properties>
                   </component>
                   <component id="4fa9" class="javax.swing.JComboBox" binding="algComboBox">
@@ -59,6 +59,7 @@
                         <item value="AES/CBC/NoPadding"/>
                         <item value="AES/ECB/NoPadding"/>
                       </model>
+                      <selectedIndex value="0"/>
                     </properties>
                   </component>
                   <component id="6aa2c" class="javax.swing.JTextField" binding="ivTextField">
@@ -79,7 +80,7 @@
                       <text value="iv"/>
                     </properties>
                   </component>
-                  <component id="52726" class="javax.swing.JTextField" binding="secretKey">
+                  <component id="52726" class="javax.swing.JTextField" binding="secretKeyTextField">
                     <constraints>
                       <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="150" height="-1"/>
@@ -90,7 +91,16 @@
                       <text value="UFlZUEBLRkBISEZa"/>
                     </properties>
                   </component>
-                  <component id="425cf" class="javax.swing.JTextField" binding="textField1" default-binding="true">
+                  <component id="cde32" class="javax.swing.JButton" binding="startButton" default-binding="true">
+                    <constraints>
+                      <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="1.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <text value="Start"/>
+                    </properties>
+                  </component>
+                  <component id="425cf" class="javax.swing.JTextField" binding="targetHostTextField">
                     <constraints>
                       <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="150" height="-1"/>
@@ -105,16 +115,7 @@
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
-                      <text value="Traget Host"/>
-                    </properties>
-                  </component>
-                  <component id="cde32" class="javax.swing.JButton" binding="startButton" default-binding="true">
-                    <constraints>
-                      <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                      <gridbag weightx="1.0" weighty="0.0"/>
-                    </constraints>
-                    <properties>
-                      <text value="Start"/>
+                      <text value="target host"/>
                     </properties>
                   </component>
                 </children>
@@ -122,11 +123,20 @@
               <grid id="76812" binding="reqSettingPanel" layout-manager="GridBagLayout">
                 <constraints/>
                 <properties/>
-                <border type="etched" title="request setting" title-position="3"/>
+                <border type="etched" title="Request Option to Decrypt/Encrypt"/>
                 <children>
-                  <component id="d1033" class="javax.swing.JCheckBox" binding="reqURLCheckBox">
+                  <component id="8c6b2" class="javax.swing.JTextField" binding="requestParamTextField">
                     <constraints>
-                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="3" indent="0" use-parent-layout="false">
+                        <preferred-size width="150" height="-1"/>
+                      </grid>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties/>
+                  </component>
+                  <component id="d1033" class="javax.swing.JCheckBox" binding="requestURLCheckBox">
+                    <constraints>
+                      <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -135,34 +145,58 @@
                       <text value="URL Decode/Encode"/>
                     </properties>
                   </component>
-                  <component id="8c6b2" class="javax.swing.JTextField" binding="reqSepParamText">
+                  <component id="35c4b" class="javax.swing.JComboBox" binding="requestComboBox">
                     <constraints>
-                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="3" indent="0" use-parent-layout="false">
-                        <preferred-size width="150" height="-1"/>
-                      </grid>
-                      <gridbag weightx="0.0" weighty="0.0"/>
-                    </constraints>
-                    <properties/>
-                  </component>
-                  <component id="4cd87" class="javax.swing.JRadioButton" binding="reqParamBtn">
-                    <constraints>
-                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
-                      <name value="reqParam"/>
-                      <selected value="false"/>
-                      <text value="Specific request parameters (separated with space)"/>
+                      <model>
+                        <item value="complete body"/>
+                        <item value="url/body param"/>
+                        <item value="json param"/>
+                      </model>
                     </properties>
                   </component>
-                  <component id="ceb8a" class="javax.swing.JRadioButton" binding="reqBodyBtn">
+                  <component id="b16ca" class="javax.swing.JLabel">
                     <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
-                      <name value="reqParam"/>
-                      <text value="Complete request body"/>
+                      <text value="ciphertext location"/>
+                    </properties>
+                  </component>
+                  <component id="97f30" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <text value="params separated with space"/>
+                    </properties>
+                  </component>
+                  <component id="4119f" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <text value="request ciphertext format"/>
+                    </properties>
+                  </component>
+                  <component id="993f3" class="javax.swing.JComboBox" binding="requestCipherFormatComboBox">
+                    <constraints>
+                      <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <model>
+                        <item value="Base64"/>
+                        <item value="Hex"/>
+                        <item value="Bytes"/>
+                      </model>
+                      <selectedIndex value="0"/>
                     </properties>
                   </component>
                 </children>
@@ -170,42 +204,87 @@
               <grid id="b5e55" binding="respSettingPanel" layout-manager="GridBagLayout">
                 <constraints/>
                 <properties/>
-                <border type="etched" title="response setting" title-position="3"/>
+                <border type="etched" title="Response Option to Decrypt/Encrypt"/>
                 <children>
-                  <component id="97e8d" class="javax.swing.JTextField" binding="respSepParam">
+                  <component id="97e8d" class="javax.swing.JTextField" binding="responseParamTextField">
                     <constraints>
-                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="3" indent="0" use-parent-layout="false">
+                      <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="3" indent="0" use-parent-layout="false">
                         <preferred-size width="150" height="-1"/>
                       </grid>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties/>
                   </component>
-                  <component id="10788" class="javax.swing.JCheckBox" binding="respURLCheckBox">
+                  <component id="10788" class="javax.swing.JCheckBox" binding="responseURLCheckBox">
                     <constraints>
-                      <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
                       <text value="URL Decode/Encode"/>
                     </properties>
                   </component>
-                  <component id="96f4" class="javax.swing.JRadioButton" binding="respBodyBtn">
+                  <component id="55aac" class="javax.swing.JComboBox" binding="responseComboBox">
                     <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
-                      <text value="Complete response body"/>
+                      <model>
+                        <item value="complete body"/>
+                        <item value="url/body param"/>
+                        <item value="json param"/>
+                      </model>
                     </properties>
                   </component>
-                  <component id="f641" class="javax.swing.JRadioButton" binding="respParamBtn">
+                  <component id="71c03" class="javax.swing.JLabel">
                     <constraints>
-                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
-                      <text value="Specific response parameters (separated with space)"/>
+                      <text value="ciphertext location"/>
+                    </properties>
+                  </component>
+                  <component id="78406" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <text value="params separated with space"/>
+                    </properties>
+                  </component>
+                  <component id="f66bd" class="javax.swing.JComboBox" binding="responseCipherFormatComboBox">
+                    <constraints>
+                      <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <model>
+                        <item value="Base64"/>
+                        <item value="Hex"/>
+                        <item value="Bytes"/>
+                      </model>
+                      <selectedIndex value="0"/>
+                    </properties>
+                  </component>
+                  <component id="9c75f" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <text value="response ciphertext format"/>
+                    </properties>
+                  </component>
+                  <component id="f0008" class="javax.swing.JCheckBox" binding="ignoreResponseCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <text value="Ignore response"/>
                     </properties>
                   </component>
                 </children>
@@ -216,12 +295,17 @@
             <constraints>
               <splitpane position="right"/>
             </constraints>
-            <properties/>
+            <properties>
+              <minimumSize width="1139" height="300"/>
+            </properties>
             <border type="none"/>
             <children>
               <grid id="c5202" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
                 <constraints border-constraint="North"/>
-                <properties/>
+                <properties>
+                  <doubleBuffered value="false"/>
+                  <minimumSize width="506" height="300"/>
+                </properties>
                 <border type="none"/>
                 <children>
                   <component id="12ca9" class="javax.swing.JButton" binding="encryptButton" default-binding="true">
@@ -242,6 +326,17 @@
                       <text value="Clear"/>
                     </properties>
                   </component>
+                  <component id="f81d1" class="javax.swing.JComboBox" binding="cipherComboBox">
+                    <constraints/>
+                    <properties>
+                      <model>
+                        <item value="Base64"/>
+                        <item value="Hex"/>
+                      </model>
+                      <opaque value="true"/>
+                      <selectedIndex value="0"/>
+                    </properties>
+                  </component>
                   <component id="4a84c" class="javax.swing.JCheckBox" binding="URLEncodeDecodeCheckBox" default-binding="true">
                     <constraints/>
                     <properties>
@@ -258,68 +353,95 @@
                   <splitpane id="b8d49">
                     <constraints border-constraint="Center"/>
                     <properties>
+                      <background color="-12828863"/>
                       <continuousLayout value="false"/>
-                      <dividerLocation value="498"/>
-                      <dividerSize value="8"/>
+                      <dividerLocation value="502"/>
+                      <dividerSize value="9"/>
                       <enabled value="true"/>
+                      <minimumSize width="1139" height="300"/>
                       <oneTouchExpandable value="false"/>
                     </properties>
                     <border type="none"/>
                     <children>
-                      <tabbedpane id="79360" binding="tabbedPane1" default-binding="true">
+                      <grid id="99002" layout-manager="BorderLayout" hgap="0" vgap="0">
                         <constraints>
                           <splitpane position="left"/>
                         </constraints>
-                        <properties/>
+                        <properties>
+                          <minimumSize width="502" height="300"/>
+                        </properties>
                         <border type="none"/>
                         <children>
-                          <grid id="d74ea" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                            <margin top="0" left="0" bottom="0" right="0"/>
-                            <constraints>
-                              <tabbedpane title="Input"/>
-                            </constraints>
-                            <properties/>
+                          <tabbedpane id="79360" binding="tabbedPane1" default-binding="true">
+                            <constraints border-constraint="Center"/>
+                            <properties>
+                              <tabPlacement value="1"/>
+                            </properties>
                             <border type="none"/>
                             <children>
-                              <component id="5a895" class="javax.swing.JTextArea" binding="inputTextArea">
+                              <grid id="d74ea" layout-manager="GridBagLayout">
                                 <constraints>
-                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                                    <preferred-size width="150" height="50"/>
-                                  </grid>
+                                  <tabbedpane title="Input"/>
                                 </constraints>
                                 <properties/>
-                              </component>
+                                <border type="none"/>
+                                <children>
+                                  <component id="5a895" class="javax.swing.JTextArea" binding="inputTextArea">
+                                    <constraints>
+                                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                                        <preferred-size width="150" height="50"/>
+                                      </grid>
+                                      <gridbag weightx="1.0" weighty="1.0"/>
+                                    </constraints>
+                                    <properties>
+                                      <lineWrap value="true"/>
+                                      <minimumSize width="502" height="300"/>
+                                      <wrapStyleWord value="true"/>
+                                    </properties>
+                                  </component>
+                                </children>
+                              </grid>
                             </children>
-                          </grid>
+                          </tabbedpane>
                         </children>
-                      </tabbedpane>
-                      <tabbedpane id="feada" binding="tabbedPane2" default-binding="true">
+                      </grid>
+                      <grid id="6ed8c" layout-manager="BorderLayout" hgap="0" vgap="0">
                         <constraints>
                           <splitpane position="right"/>
                         </constraints>
                         <properties/>
                         <border type="none"/>
                         <children>
-                          <grid id="1d0d6" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                            <margin top="0" left="0" bottom="0" right="0"/>
-                            <constraints>
-                              <tabbedpane title="Output"/>
-                            </constraints>
+                          <tabbedpane id="feada" binding="tabbedPane2" default-binding="true">
+                            <constraints border-constraint="Center"/>
                             <properties/>
                             <border type="none"/>
                             <children>
-                              <component id="17738" class="javax.swing.JTextArea" binding="outputTextArea">
+                              <grid id="1d0d6" layout-manager="GridBagLayout">
                                 <constraints>
-                                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                                    <preferred-size width="150" height="50"/>
-                                  </grid>
+                                  <tabbedpane title="Output"/>
                                 </constraints>
                                 <properties/>
-                              </component>
+                                <border type="none"/>
+                                <children>
+                                  <component id="17738" class="javax.swing.JTextArea" binding="outputTextArea">
+                                    <constraints>
+                                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                                        <preferred-size width="150" height="50"/>
+                                      </grid>
+                                      <gridbag weightx="1.0" weighty="1.0"/>
+                                    </constraints>
+                                    <properties>
+                                      <lineWrap value="true"/>
+                                      <wrapStyleWord value="true"/>
+                                    </properties>
+                                  </component>
+                                </children>
+                              </grid>
                             </children>
-                          </grid>
+                          </tabbedpane>
                         </children>
-                      </tabbedpane>
+                      </grid>
                     </children>
                   </splitpane>
                 </children>

@@ -1,18 +1,15 @@
 package burp;
 
 import javax.crypto.Cipher;
-
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
 
-public class DefaultTabPane extends Component {
+class AES_UI extends JPanel{
     public static final int COMPLETE_BODY = 0;
     public static final int URL_BODY_PARAM = 1;
     public static final int JSON_PARAM = 2;
@@ -46,45 +43,42 @@ public class DefaultTabPane extends Component {
     public int cipherTextFormat = BASE64;
     public boolean urlEncode = false;
 
-
-    private JPanel mainPanel;
-    private JPanel topPanel;
-    private JTextField ivTextField;
-    private JComboBox algComboBox;
-    private JTextField secretKeyTextField;
-    private JTextField requestParamTextField;
-    private JCheckBox requestURLCheckBox;
-    private JTextField responseParamTextField;
-    private JCheckBox responseURLCheckBox;
+    public JPanel topPanel;
+    public JTextField ivTextField;
+    public JComboBox algComboBox;
+    public JTextField secretKeyTextField;
+    public JTextField requestParamTextField;
+    public JCheckBox requestURLCheckBox;
+    public JTextField responseParamTextField;
+    public JCheckBox responseURLCheckBox;
 
 
-    private JPanel respSettingPanel;
-    private JPanel reqSettingPanel;
-    private JPanel globalSettingPanel;
-    private JTextField targetHostTextField;
-    private JButton startButton;
-    private JButton encryptButton;
-    private JButton decryptButton;
-    private JButton clearButton;
-    private JCheckBox URLEncodeDecodeCheckBox;
-    private JTabbedPane tabbedPane1;
-    private JTabbedPane tabbedPane2;
-    private JTextArea inputTextArea;
-    private JTextArea outputTextArea;
-    private JComboBox responseCipherFormatComboBox;
-    private JComboBox cipherComboBox;
-    private JComboBox responseComboBox;
-    private JComboBox requestComboBox;
-    private JCheckBox ignoreResponseCheckBox;
-    private JComboBox requestCipherFormatComboBox;
-
+    public JPanel respSettingPanel;
+    public JPanel reqSettingPanel;
+    public JPanel globalSettingPanel;
+    public JTextField targetHostTextField;
+    public JButton startButton;
+    public JButton encryptButton;
+    public JButton decryptButton;
+    public JButton clearButton;
+    public JCheckBox URLEncodeDecodeCheckBox;
+    public JTabbedPane tabbedPane1;
+    public JTabbedPane tabbedPane2;
+    public JTextArea inputTextArea;
+    public JTextArea outputTextArea;
+    public JComboBox responseCipherFormatComboBox;
+    public JComboBox cipherComboBox;
+    public JComboBox responseComboBox;
+    public JComboBox requestComboBox;
+    public JCheckBox ignoreResponseCheckBox;
+    public JComboBox requestCipherFormatComboBox;
 
     public static String cipherOutputFormat(int cipherTextFormat, byte[] b) {
-        if (cipherTextFormat == DefaultTabPane.BASE64) {
+        if (cipherTextFormat == BASE64) {
 //            return BurpExtender.helpers.base64Encode(b);
             return Base64.getEncoder().encodeToString(b);
         }
-        if (cipherTextFormat == DefaultTabPane.HEX) {
+        if (cipherTextFormat == HEX) {
             return byteToHex(b);
         }
         // bytes
@@ -92,11 +86,11 @@ public class DefaultTabPane extends Component {
     }
 
     public static byte[] cipherInputFormat(int cipherTextFormat, String s) {
-        if (cipherTextFormat == DefaultTabPane.BASE64) {
+        if (cipherTextFormat == BASE64) {
 //            return BurpExtender.helpers.base64Decode(s);
             return Base64.getDecoder().decode(s);
         }
-        if (cipherTextFormat == DefaultTabPane.HEX) {
+        if (cipherTextFormat == HEX) {
             return hexToByte(s);
         }
         // bytes
@@ -117,240 +111,25 @@ public class DefaultTabPane extends Component {
         return String.format("%x", new BigInteger(1, b));
     }
 
-    public DefaultTabPane() {
-        requestParamTextField.setEnabled(false);
-        requestParamTextField.setBackground(Color.lightGray);
-        responseParamTextField.setEnabled(false);
-        responseParamTextField.setBackground(Color.lightGray);
-        encryptButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                secretKey = new byte[16];
-                System.arraycopy(secretKeyTextField.getText().getBytes(StandardCharsets.UTF_8), 0, secretKey, 0, 16);
-                String text = inputTextArea.getText();
-                alg = Objects.requireNonNull(algComboBox.getSelectedItem()).toString();
-                cipherTextFormat = cipherComboBox.getSelectedIndex();
-                String mode = alg.split("/")[1];
-                String pad = alg.split("/")[2];
-                iv = null;
-                if (pad.equals("NoPadding") && text.length() % 16 != 0) {
-                    outputTextArea.setText("NoPadding required plain text length must be multiple of 16 bytes");
-                    return;
-                }
-                if (mode.equals("CBC")) {
-                    iv = ivTextField.getText().getBytes(StandardCharsets.UTF_8);
-                    if (iv == null) {
-                        outputTextArea.setText("IV length must be 16 bytes long");
-                        return;
-                    }
-                    if (iv.length != 16) {
-                        outputTextArea.setText("IV length must be 16 bytes long");
-                        return;
-                    }
-                }
-                byte[] encryptedText = null;
-                try {
-                    encryptedText = CryptUtils.AESEncrypt(Cipher.ENCRYPT_MODE, alg, secretKey, text.getBytes(StandardCharsets.UTF_8), iv);
-                    assert encryptedText != null;
-                } catch (Exception ex) {
-                    outputTextArea.setText(ex.toString());
-                }
-                outputTextArea.setText(cipherOutputFormat(cipherTextFormat, encryptedText));
-                if (urlEncode) {
-                    outputTextArea.setText(cipherOutputFormat(cipherTextFormat, encryptedText));
-                } else {
-                    outputTextArea.setText(cipherOutputFormat(cipherTextFormat, encryptedText));
-                }
-            }
-        });
-        decryptButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cipherTextFormat = cipherComboBox.getSelectedIndex();
-                secretKey = new byte[16];
-                System.arraycopy(secretKeyTextField.getText().getBytes(StandardCharsets.UTF_8), 0, secretKey, 0, 16);
-                String text = inputTextArea.getText();
-                alg = Objects.requireNonNull(algComboBox.getSelectedItem()).toString();
-                String mode = alg.split("/")[1];
-                iv = null;
-                if (!mode.equals("ECB")) {
-                    iv = ivTextField.getText().getBytes(StandardCharsets.UTF_8);
-                    if (iv.length != 16) {
-                        outputTextArea.setText("IV length must be 16 bytes long");
-                        return;
-                    }
-                }
-                byte[] plainText = null;
-                try {
-                    plainText = CryptUtils.AESEncrypt(Cipher.DECRYPT_MODE, alg, secretKey, cipherInputFormat(cipherTextFormat, text), iv);
-                } catch (Exception ex) {
-//                    noSuchPaddingException.printStackTrace();
-                    outputTextArea.setText(ex.toString());
-                }
-                if (urlEncode) {
-                    outputTextArea.setText(new String(plainText));
-                } else {
-                    outputTextArea.setText(new String(plainText));
-                }
-            }
-        });
-
-        clearButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                inputTextArea.setText("");
-                outputTextArea.setText("");
-            }
-        });
-
-        algComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int index = algComboBox.getSelectedIndex();
-                if (index == 1 || index == 3) {
-                    ivTextField.setBackground(Color.lightGray);
-                    ivTextField.setEnabled(false);
-                } else {
-                    ivTextField.setBackground(Color.white);
-                    ivTextField.setEnabled(true);
-                }
-            }
-        });
-
-        requestComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int index = requestComboBox.getSelectedIndex();
-                if (index == COMPLETE_BODY) {
-                    requestParamTextField.setEnabled(false);
-                    requestParamTextField.setBackground(Color.lightGray);
-                } else {
-                    requestParamTextField.setEnabled(true);
-                    requestParamTextField.setBackground(Color.white);
-                }
-            }
-        });
-
-        responseComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (responseComboBox.getSelectedIndex() == COMPLETE_BODY) {
-                    responseParamTextField.setEnabled(false);
-                    responseParamTextField.setBackground(Color.lightGray);
-                } else {
-                    responseParamTextField.setEnabled(true);
-                    responseParamTextField.setBackground(Color.white);
-                }
-            }
-        });
-
-        startButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!start) {
-                    // global setting
-                    alg = Objects.requireNonNull(algComboBox.getSelectedItem()).toString();
-                    secretKey = new byte[16];
-                    System.arraycopy(secretKeyTextField.getText().getBytes(StandardCharsets.UTF_8), 0, secretKey, 0, 16);
-                    iv = ivTextField.getText().getBytes(StandardCharsets.UTF_8);
-                    requestCipherFormat = cipherComboBox.getSelectedIndex();
-                    responseCipherFormat = responseCipherFormatComboBox.getSelectedIndex();
-                    requestCipherFormat = requestCipherFormatComboBox.getSelectedIndex();
-                    targetHost = targetHostTextField.getText();
-
-                    // request setting
-                    requestOption = requestComboBox.getSelectedIndex();
-                    requestParams = requestParamTextField.getText().split(" ");
-                    requestURLEncode = requestURLCheckBox.isSelected();
-
-                    // response setting
-                    responseOption = responseComboBox.getSelectedIndex();
-                    responseParams = responseParamTextField.getText().split(" ");
-                    responseURLEncode = responseURLCheckBox.isSelected();
-                    ignoreResponse = ignoreResponseCheckBox.isSelected();
-
-                    startButton.setText("Stop");
-                    algComboBox.setEnabled(false);
-                    secretKeyTextField.setEnabled(false);
-                    ivTextField.setEnabled(false);
-                    cipherComboBox.setEnabled(false);
-                    requestCipherFormatComboBox.setEnabled(false);
-                    responseCipherFormatComboBox.setEnabled(false);
-                    targetHostTextField.setEnabled(false);
-                    requestComboBox.setEnabled(false);
-                    requestParamTextField.setEnabled(false);
-                    requestURLCheckBox.setEnabled(false);
-                    responseComboBox.setEnabled(false);
-                    responseParamTextField.setEnabled(false);
-                    responseURLCheckBox.setEnabled(false);
-                    ignoreResponseCheckBox.setEnabled(false);
-                    start = true;
-                } else {
-                    startButton.setText("Start");
-                    algComboBox.setEnabled(true);
-                    secretKeyTextField.setEnabled(true);
-                    if (!(alg.equals("AES/ECB/PKCS5Padding") || alg.equals("AES/ECB/NoPadding"))) {
-                        ivTextField.setEnabled(true);
-                    }
-                    cipherComboBox.setEnabled(true);
-                    responseCipherFormatComboBox.setEnabled(true);
-                    targetHostTextField.setEnabled(true);
-                    requestComboBox.setEnabled(true);
-                    if (requestOption != COMPLETE_BODY) {
-                        requestParamTextField.setEnabled(true);
-                    }
-                    requestURLCheckBox.setEnabled(true);
-                    responseComboBox.setEnabled(true);
-                    if (responseOption != COMPLETE_BODY) {
-                        responseParamTextField.setEnabled(true);
-                    }
-                    responseURLCheckBox.setEnabled(true);
-                    requestCipherFormatComboBox.setEnabled(true);
-                    ignoreResponseCheckBox.setEnabled(true);
-                    start = false;
-                }
-            }
-        });
-        ignoreResponseCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
+    public void saveConfig(IBurpExtenderCallbacks callbacks){
+        callbacks.saveExtensionSetting("alg", Integer.toString(algComboBox.getSelectedIndex()));
+        callbacks.saveExtensionSetting("iv", ivTextField.getText());
+        callbacks.saveExtensionSetting("secretKey", secretKeyTextField.getText());
+        callbacks.saveExtensionSetting("targetHost", targetHostTextField.getText());
     }
 
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
+    public void loadConfig(IBurpExtenderCallbacks callbacks){
+        algComboBox.setSelectedIndex(Integer.parseInt(callbacks.loadExtensionSetting("alg")));
+        ivTextField.setText(callbacks.loadExtensionSetting("iv"));
+        secretKeyTextField.setText(callbacks.loadExtensionSetting("secretKey"));
+        targetHostTextField.setText(callbacks.loadExtensionSetting("targetHost"));
     }
 
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("DefaultTabPane");
-        frame.setContentPane(new DefaultTabPane().mainPanel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-    }
-
-    {
-// GUI initializer generated by IntelliJ IDEA GUI Designer
-// >>> IMPORTANT!! <<<
-// DO NOT EDIT OR ADD ANY CODE HERE!
-        $$$setupUI$$$();
-    }
-
-    /**
-     * Method generated by IntelliJ IDEA GUI Designer
-     * >>> IMPORTANT!! <<<
-     * DO NOT edit this method OR call it in your code!
-     *
-     * @noinspection ALL
-     */
-    private void $$$setupUI$$$() {
-        mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout(0, 0));
+    public AES_UI() {
+        this.setLayout(new BorderLayout(0, 0));
         final JSplitPane splitPane1 = new JSplitPane();
         splitPane1.setOrientation(0);
-        mainPanel.add(splitPane1, BorderLayout.CENTER);
+        this.add(splitPane1, BorderLayout.CENTER);
         topPanel = new JPanel();
         topPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
         topPanel.putClientProperty("html.disable", Boolean.FALSE);
@@ -576,7 +355,6 @@ public class DefaultTabPane extends Component {
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
         panel2.setDoubleBuffered(false);
-        panel2.setMinimumSize(new Dimension(506, 300));
         panel1.add(panel2, BorderLayout.NORTH);
         encryptButton = new JButton();
         encryptButton.setText("Encrypt");
@@ -602,17 +380,14 @@ public class DefaultTabPane extends Component {
         panel3.setLayout(new BorderLayout(0, 0));
         panel1.add(panel3, BorderLayout.CENTER);
         final JSplitPane splitPane2 = new JSplitPane();
-        splitPane2.setBackground(new Color(-12828863));
         splitPane2.setContinuousLayout(false);
         splitPane2.setDividerLocation(502);
         splitPane2.setDividerSize(9);
         splitPane2.setEnabled(true);
-        splitPane2.setMinimumSize(new Dimension(1139, 300));
         splitPane2.setOneTouchExpandable(false);
         panel3.add(splitPane2, BorderLayout.CENTER);
         final JPanel panel4 = new JPanel();
         panel4.setLayout(new BorderLayout(0, 0));
-        panel4.setMinimumSize(new Dimension(502, 300));
         splitPane2.setLeftComponent(panel4);
         tabbedPane1 = new JTabbedPane();
         tabbedPane1.setTabPlacement(1);
@@ -622,7 +397,6 @@ public class DefaultTabPane extends Component {
         tabbedPane1.addTab("Input", panel5);
         inputTextArea = new JTextArea();
         inputTextArea.setLineWrap(true);
-        inputTextArea.setMinimumSize(new Dimension(502, 300));
         inputTextArea.setWrapStyleWord(true);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -649,14 +423,219 @@ public class DefaultTabPane extends Component {
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
         panel7.add(outputTextArea, gbc);
+
+
+
+        requestParamTextField.setEnabled(false);
+        responseParamTextField.setEnabled(false);
+
+        startButton.addActionListener(e -> {
+            if (!start) {
+                // global setting
+                // secretKey = new byte[16];
+                // System.arraycopy(secretKeyTextField.getText().getBytes(StandardCharsets.UTF_8), 0, secretKey, 0, 16);
+
+                secretKey = secretKeyTextField.getText().getBytes(StandardCharsets.UTF_8);
+                if(secretKey.length != 16){
+                    JOptionPane.showConfirmDialog(new JPanel(),"secret key must be 16 bytes long","Warning", JOptionPane.OK_CANCEL_OPTION);
+                    return;
+                }
+
+                iv = ivTextField.getText().getBytes(StandardCharsets.UTF_8);
+                if((ivTextField.isEnabled() && iv.length != 16)){
+                    JOptionPane.showConfirmDialog(new JPanel(),"iv must be 16 bytes long","Warning", JOptionPane.OK_CANCEL_OPTION);
+                    return;
+                }
+
+                targetHost = targetHostTextField.getText();
+                if(targetHost.equals("")){
+                    JOptionPane.showConfirmDialog(new JPanel(),"pls input a valid host","Warning", JOptionPane.OK_CANCEL_OPTION);
+                    return;
+                }
+                alg = Objects.requireNonNull(algComboBox.getSelectedItem()).toString();
+
+                requestCipherFormat = cipherComboBox.getSelectedIndex();
+                responseCipherFormat = responseCipherFormatComboBox.getSelectedIndex();
+                requestCipherFormat = requestCipherFormatComboBox.getSelectedIndex();
+
+
+                // request setting
+                requestOption = requestComboBox.getSelectedIndex();
+                requestParams = requestParamTextField.getText().split(" ");
+                requestURLEncode = requestURLCheckBox.isSelected();
+
+                // response setting
+                responseOption = responseComboBox.getSelectedIndex();
+                responseParams = responseParamTextField.getText().split(" ");
+                responseURLEncode = responseURLCheckBox.isSelected();
+                ignoreResponse = ignoreResponseCheckBox.isSelected();
+
+                startButton.setText("Stop");
+                algComboBox.setEnabled(false);
+                secretKeyTextField.setEnabled(false);
+                ivTextField.setEnabled(false);
+                requestCipherFormatComboBox.setEnabled(false);
+                responseCipherFormatComboBox.setEnabled(false);
+                targetHostTextField.setEnabled(false);
+                requestComboBox.setEnabled(false);
+                requestParamTextField.setEnabled(false);
+                requestURLCheckBox.setEnabled(false);
+                responseComboBox.setEnabled(false);
+                responseParamTextField.setEnabled(false);
+                responseURLCheckBox.setEnabled(false);
+                ignoreResponseCheckBox.setEnabled(false);
+                start = true;
+            } else {
+                startButton.setText("Start");
+                algComboBox.setEnabled(true);
+                secretKeyTextField.setEnabled(true);
+                if (!(alg.equals("AES/ECB/PKCS5Padding") || alg.equals("AES/ECB/NoPadding"))) {
+                    ivTextField.setEnabled(true);
+                }
+                targetHostTextField.setEnabled(true);
+                requestURLCheckBox.setEnabled(true);
+                requestComboBox.setEnabled(true);
+                if (requestOption != COMPLETE_BODY) {
+                    requestParamTextField.setEnabled(true);
+                }
+                requestCipherFormatComboBox.setEnabled(true);
+                if (!ignoreResponseCheckBox.isSelected()) {
+                    responseCipherFormatComboBox.setEnabled(true);
+                    responseComboBox.setEnabled(true);
+                    responseURLCheckBox.setEnabled(true);
+                    if (responseOption != COMPLETE_BODY) {
+                        responseParamTextField.setEnabled(true);
+                    }
+                }
+                ignoreResponseCheckBox.setEnabled(true);
+                start = false;
+            }
+        });
+
+        responseComboBox.addActionListener(e -> {
+                if (responseComboBox.getSelectedIndex() == COMPLETE_BODY) {
+                    responseParamTextField.setEnabled(false);
+                } else {
+                    responseParamTextField.setEnabled(true);
+                }
+        });
+
+        requestComboBox.addActionListener(e -> {
+            int index = requestComboBox.getSelectedIndex();
+            if (index == COMPLETE_BODY) {
+                requestParamTextField.setEnabled(false);
+            } else {
+                requestParamTextField.setEnabled(true);
+            }
+        });
+
+        algComboBox.addActionListener(e -> {
+            int index = algComboBox.getSelectedIndex();
+            if (index == 1 || index == 3) {
+                ivTextField.setEnabled(false);
+            } else {
+                ivTextField.setEnabled(true);
+            }
+        });
+
+        clearButton.addActionListener(e -> {
+            inputTextArea.setText("");
+            outputTextArea.setText("");
+        });
+
+        decryptButton.addActionListener(e -> {
+            cipherTextFormat = cipherComboBox.getSelectedIndex();
+            urlEncode = URLEncodeDecodeCheckBox.isSelected();
+//            secretKey = new byte[16];
+//            System.arraycopy(secretKeyTextField.getText().getBytes(StandardCharsets.UTF_8), 0, secretKey, 0, 16);
+            secretKey = secretKeyTextField.getText().getBytes(StandardCharsets.UTF_8);
+            String text = inputTextArea.getText();
+            alg = Objects.requireNonNull(algComboBox.getSelectedItem()).toString();
+            String mode = alg.split("/")[1];
+            iv = null;
+            if (!mode.equals("ECB")) {
+                iv = ivTextField.getText().getBytes(StandardCharsets.UTF_8);
+                if (iv.length != 16) {
+                    outputTextArea.setText("IV length must be 16 bytes long");
+                    return;
+                }
+            }
+            byte[] plainText;
+            if (urlEncode) {
+                text = BurpExtender.helpers.urlDecode(text);
+            }
+            try {
+                plainText = CryptUtils.AESEncrypt(Cipher.DECRYPT_MODE, alg, secretKey, cipherInputFormat(cipherTextFormat, text), iv);
+            } catch (Exception ex) {
+                outputTextArea.setText(ex.toString());
+                return;
+            }
+            if (urlEncode) {
+                outputTextArea.setText(BurpExtender.helpers.urlEncode(new String(plainText)));
+            } else {
+                outputTextArea.setText(new String(plainText));
+            }
+        });
+
+        encryptButton.addActionListener(e -> {
+
+//            secretKey = new byte[16];
+//            System.arraycopy(secretKeyTextField.getText().getBytes(StandardCharsets.UTF_8), 0, secretKey, 0, 16);
+            secretKey = secretKeyTextField.getText().getBytes(StandardCharsets.UTF_8);
+            String text = inputTextArea.getText();
+            alg = Objects.requireNonNull(algComboBox.getSelectedItem()).toString();
+            cipherTextFormat = cipherComboBox.getSelectedIndex();
+            urlEncode = URLEncodeDecodeCheckBox.isSelected();
+            String mode = alg.split("/")[1];
+//            String pad = alg.split("/")[2];
+            iv = null;
+//            if (pad.equals("NoPadding") && text.length() % 16 != 0) {
+//                outputTextArea.setText("NoPadding required plain text length must be multiple of 16 bytes");
+//                return;
+//            }
+//            if (mode.equals("CBC")) {
+//                iv = ivTextField.getText().getBytes(StandardCharsets.UTF_8);
+//                if (iv.length != 16) {
+//                    outputTextArea.setText("IV length must be 16 bytes long");
+//                    return;
+//                }
+//            }
+            if (mode.equals("CBC")) {
+                iv = ivTextField.getText().getBytes(StandardCharsets.UTF_8);
+            }
+            byte[] encryptedText;
+            if(urlEncode){
+                text = BurpExtender.helpers.urlDecode(text);
+            }
+            try {
+                encryptedText = CryptUtils.AESEncrypt(Cipher.ENCRYPT_MODE, alg, secretKey, text.getBytes(StandardCharsets.UTF_8), iv);
+            } catch (Exception ex) {
+                outputTextArea.setText(ex.toString());
+                return;
+            }
+            if (urlEncode) {
+                outputTextArea.setText(BurpExtender.helpers.urlEncode(cipherOutputFormat(cipherTextFormat, encryptedText)));
+            } else {
+                outputTextArea.setText(cipherOutputFormat(cipherTextFormat, encryptedText));
+            }
+        });
+
+        ignoreResponseCheckBox.addActionListener(e -> {
+            if(ignoreResponseCheckBox.isSelected()){
+                responseComboBox.setEnabled(false);
+                responseCipherFormatComboBox.setEnabled(false);
+                responseURLCheckBox.setEnabled(false);
+                if(responseParamTextField.isEnabled()){
+                    responseParamTextField.setEnabled(false);
+                }
+            }else{
+                responseComboBox.setEnabled(true);
+                responseCipherFormatComboBox.setEnabled(true);
+                responseURLCheckBox.setEnabled(true);
+                if(responseComboBox.getSelectedIndex() != COMPLETE_BODY){
+                    responseParamTextField.setEnabled(true);
+                }
+            }
+        });
     }
-
-    /**
-     * @noinspection ALL
-     */
-    public JComponent $$$getRootComponent$$$() {
-        return mainPanel;
-    }
-
-
 }
