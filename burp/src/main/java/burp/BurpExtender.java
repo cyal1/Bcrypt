@@ -78,6 +78,9 @@ public class BurpExtender implements IBurpExtender,ITab,IContextMenuFactory,IExt
 
     @Override
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
+        if (aesTab.start){
+            return;
+        }
         String reqHost = messageInfo.getHttpService().getHost();
         if (messageIsRequest){
            if (!reqHost.equals(this.aesTab.targetHost)) {return;}
@@ -153,6 +156,9 @@ public class BurpExtender implements IBurpExtender,ITab,IContextMenuFactory,IExt
 
     @Override
     public void processProxyMessage(boolean messageIsRequest, IInterceptedProxyMessage message) {
+        if (!aesTab.start){
+            return;
+        }
         String reqHost = message.getMessageInfo().getHttpService().getHost();
         if (messageIsRequest){
             if (!reqHost.equals(this.aesTab.targetHost)) {return;}

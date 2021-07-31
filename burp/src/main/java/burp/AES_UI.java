@@ -380,11 +380,13 @@ class AES_UI extends JPanel{
         panel3.setLayout(new BorderLayout(0, 0));
         panel1.add(panel3, BorderLayout.CENTER);
         final JSplitPane splitPane2 = new JSplitPane();
-        splitPane2.setContinuousLayout(false);
-        splitPane2.setDividerLocation(502);
-        splitPane2.setDividerSize(9);
-        splitPane2.setEnabled(true);
-        splitPane2.setOneTouchExpandable(false);
+//        splitPane2.setContinuousLayout(false);
+//        splitPane2.setDividerLocation(502);
+        splitPane2.setResizeWeight(0.5);
+        splitPane2.setBackground(new Color(251,251,251));
+//        splitPane2.setDividerSize(9);
+//        splitPane2.setEnabled(true);
+//        splitPane2.setOneTouchExpandable(false);
         panel3.add(splitPane2, BorderLayout.CENTER);
         final JPanel panel4 = new JPanel();
         panel4.setLayout(new BorderLayout(0, 0));
