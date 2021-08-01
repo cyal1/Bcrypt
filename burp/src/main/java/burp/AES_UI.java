@@ -144,7 +144,6 @@ class AES_UI extends JPanel{
         gbc.anchor = GridBagConstraints.EAST;
         globalSettingPanel.add(label3, gbc);
         secretKeyTextField = new JTextField();
-        secretKeyTextField.setText("UFlZUEBLRkBISEZa");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 1;
@@ -198,8 +197,7 @@ class AES_UI extends JPanel{
         requestComboBox = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel2 = new DefaultComboBoxModel();
         defaultComboBoxModel2.addElement("complete body");
-        defaultComboBoxModel2.addElement("url/body param");
-        defaultComboBoxModel2.addElement("json param");
+        defaultComboBoxModel2.addElement("parameters");
         requestComboBox.setModel(defaultComboBoxModel2);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
@@ -260,8 +258,7 @@ class AES_UI extends JPanel{
         responseComboBox = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel4 = new DefaultComboBoxModel();
         defaultComboBoxModel4.addElement("complete body");
-        defaultComboBoxModel4.addElement("url/body param");
-        defaultComboBoxModel4.addElement("json param");
+        defaultComboBoxModel4.addElement("parameters");
         responseComboBox.setModel(defaultComboBoxModel4);
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
