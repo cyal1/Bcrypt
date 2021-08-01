@@ -4,9 +4,7 @@ import javax.crypto.Cipher;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Objects;
 
 class AES_UI extends JPanel{
@@ -73,44 +71,6 @@ class AES_UI extends JPanel{
     public JCheckBox ignoreResponseCheckBox;
     public JComboBox requestCipherFormatComboBox;
 
-    public static String cipherOutputFormat(int cipherTextFormat, byte[] b) {
-        if (cipherTextFormat == BASE64) {
-//            return BurpExtender.helpers.base64Encode(b);
-            return Base64.getEncoder().encodeToString(b);
-        }
-        if (cipherTextFormat == HEX) {
-            return byteToHex(b);
-        }
-        // bytes
-        return new String(b);
-    }
-
-    public static byte[] cipherInputFormat(int cipherTextFormat, String s) {
-        if (cipherTextFormat == BASE64) {
-//            return BurpExtender.helpers.base64Decode(s);
-            return Base64.getDecoder().decode(s);
-        }
-        if (cipherTextFormat == HEX) {
-            return hexToByte(s);
-        }
-        // bytes
-        return s.getBytes(StandardCharsets.UTF_8);
-    }
-
-    public static byte[] hexToByte(String s) {
-        int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i + 1), 16));
-        }
-        return data;
-    }
-
-    public static String byteToHex(byte[] b) {
-        return String.format("%x", new BigInteger(1, b));
-    }
-
     public void saveConfig(IBurpExtenderCallbacks callbacks){
         callbacks.saveExtensionSetting("alg", Integer.toString(algComboBox.getSelectedIndex()));
         callbacks.saveExtensionSetting("iv", ivTextField.getText());
@@ -137,7 +97,7 @@ class AES_UI extends JPanel{
         globalSettingPanel = new JPanel();
         globalSettingPanel.setLayout(new GridBagLayout());
         topPanel.add(globalSettingPanel);
-        globalSettingPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Golobal setting", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        globalSettingPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Global setting", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         final JLabel label1 = new JLabel();
         label1.setText("algorithm");
         GridBagConstraints gbc;
@@ -429,7 +389,9 @@ class AES_UI extends JPanel{
 
 
         requestParamTextField.setEnabled(false);
+        requestParamTextField.setBackground(new Color(240,240,240));
         responseParamTextField.setEnabled(false);
+        responseParamTextField.setBackground(new Color(240,240,240));
 
         startButton.addActionListener(e -> {
             if (!start) {
@@ -448,7 +410,9 @@ class AES_UI extends JPanel{
                     JOptionPane.showConfirmDialog(new JPanel(),"iv must be 16 bytes long","Warning", JOptionPane.OK_CANCEL_OPTION);
                     return;
                 }
-
+                if(!ivTextField.isEnabled()){
+                    iv = null;
+                }
                 targetHost = targetHostTextField.getText();
                 if(targetHost.equals("")){
                     JOptionPane.showConfirmDialog(new JPanel(),"pls input a valid host","Warning", JOptionPane.OK_CANCEL_OPTION);
@@ -476,6 +440,7 @@ class AES_UI extends JPanel{
                 algComboBox.setEnabled(false);
                 secretKeyTextField.setEnabled(false);
                 ivTextField.setEnabled(false);
+                ivTextField.setBackground(new Color(251,251,251));
                 requestCipherFormatComboBox.setEnabled(false);
                 responseCipherFormatComboBox.setEnabled(false);
                 targetHostTextField.setEnabled(false);
@@ -493,6 +458,7 @@ class AES_UI extends JPanel{
                 secretKeyTextField.setEnabled(true);
                 if (!(alg.equals("AES/ECB/PKCS5Padding") || alg.equals("AES/ECB/NoPadding"))) {
                     ivTextField.setEnabled(true);
+                    ivTextField.setBackground(Color.white);
                 }
                 targetHostTextField.setEnabled(true);
                 requestURLCheckBox.setEnabled(true);
@@ -517,8 +483,10 @@ class AES_UI extends JPanel{
         responseComboBox.addActionListener(e -> {
                 if (responseComboBox.getSelectedIndex() == COMPLETE_BODY) {
                     responseParamTextField.setEnabled(false);
+                    responseParamTextField.setBackground(new Color(240,240,240));
                 } else {
                     responseParamTextField.setEnabled(true);
+                    responseParamTextField.setBackground(Color.WHITE);
                 }
         });
 
@@ -526,8 +494,10 @@ class AES_UI extends JPanel{
             int index = requestComboBox.getSelectedIndex();
             if (index == COMPLETE_BODY) {
                 requestParamTextField.setEnabled(false);
+                requestParamTextField.setBackground(new Color(240,240,240));
             } else {
                 requestParamTextField.setEnabled(true);
+                requestParamTextField.setBackground(Color.white);
             }
         });
 
@@ -535,8 +505,10 @@ class AES_UI extends JPanel{
             int index = algComboBox.getSelectedIndex();
             if (index == 1 || index == 3) {
                 ivTextField.setEnabled(false);
+                ivTextField.setBackground(new Color(240,240,240));
             } else {
                 ivTextField.setEnabled(true);
+                ivTextField.setBackground(Color.white);
             }
         });
 
@@ -554,20 +526,23 @@ class AES_UI extends JPanel{
             String text = inputTextArea.getText();
             alg = Objects.requireNonNull(algComboBox.getSelectedItem()).toString();
             String mode = alg.split("/")[1];
-            iv = null;
-            if (!mode.equals("ECB")) {
-                iv = ivTextField.getText().getBytes(StandardCharsets.UTF_8);
-                if (iv.length != 16) {
-                    outputTextArea.setText("IV length must be 16 bytes long");
-                    return;
-                }
+            iv = ivTextField.getText().getBytes(StandardCharsets.UTF_8);
+            if (!ivTextField.isEnabled()){
+                iv = null;
             }
+//            if (mode.equals("CBC")) {
+//                iv = ivTextField.getText().getBytes(StandardCharsets.UTF_8);
+//                if (iv.length != 16) {
+//                    outputTextArea.setText("IV length must be 16 bytes long");
+//                    return;
+//                }
+//            }
             byte[] plainText;
             if (urlEncode) {
                 text = BurpExtender.helpers.urlDecode(text);
             }
             try {
-                plainText = CryptUtils.AESEncrypt(Cipher.DECRYPT_MODE, alg, secretKey, cipherInputFormat(cipherTextFormat, text), iv);
+                plainText = CryptUtils.AESEncrypt(Cipher.DECRYPT_MODE, alg, secretKey, BurpExtender.decoder(cipherTextFormat, text), iv);
             } catch (Exception ex) {
                 outputTextArea.setText(ex.toString());
                 return;
@@ -590,7 +565,10 @@ class AES_UI extends JPanel{
             urlEncode = URLEncodeDecodeCheckBox.isSelected();
             String mode = alg.split("/")[1];
 //            String pad = alg.split("/")[2];
-            iv = null;
+            iv = ivTextField.getText().getBytes(StandardCharsets.UTF_8);
+            if (!ivTextField.isEnabled()){
+                iv = null;
+            }
 //            if (pad.equals("NoPadding") && text.length() % 16 != 0) {
 //                outputTextArea.setText("NoPadding required plain text length must be multiple of 16 bytes");
 //                return;
@@ -602,9 +580,13 @@ class AES_UI extends JPanel{
 //                    return;
 //                }
 //            }
-            if (mode.equals("CBC")) {
-                iv = ivTextField.getText().getBytes(StandardCharsets.UTF_8);
-            }
+//            if (mode.equals("CBC")) {
+//                iv = ivTextField.getText().getBytes(StandardCharsets.UTF_8);
+//                if (iv.length != 16) {
+//                    outputTextArea.setText("IV length must be 16 bytes long");
+//                    return;
+//                }
+//            }
             byte[] encryptedText;
             if(urlEncode){
                 text = BurpExtender.helpers.urlDecode(text);
@@ -616,9 +598,9 @@ class AES_UI extends JPanel{
                 return;
             }
             if (urlEncode) {
-                outputTextArea.setText(BurpExtender.helpers.urlEncode(cipherOutputFormat(cipherTextFormat, encryptedText)));
+                outputTextArea.setText(BurpExtender.helpers.urlEncode(BurpExtender.encoder(cipherTextFormat, encryptedText)));
             } else {
-                outputTextArea.setText(cipherOutputFormat(cipherTextFormat, encryptedText));
+                outputTextArea.setText(BurpExtender.encoder(cipherTextFormat, encryptedText));
             }
         });
 
