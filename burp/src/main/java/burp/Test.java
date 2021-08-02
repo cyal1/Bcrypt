@@ -2,6 +2,9 @@ package burp;
 
 import javax.swing.*;
 import java.awt.*;
+
+import org.python.core.PyFunction;
+import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 import org.fife.ui.rsyntaxtextarea.*;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -64,6 +67,12 @@ public class Test {
 //        pyInterp.exec("queueRequests(target, wordlists)");
         EventQueue.invokeLater(() ->{
             JFrame jf = new JFrame();
+            // https://github.com/bobbylight/RSyntaxTextArea/issues/269
+            javax.swing.text.JTextComponent.removeKeymap("RTextAreaKeymap");
+            javax.swing.UIManager.put("RTextAreaUI.inputMap", null);
+            javax.swing.UIManager.put("RTextAreaUI.actionMap", null);
+            javax.swing.UIManager.put("RSyntaxTextAreaUI.inputMap", null);
+            javax.swing.UIManager.put("RSyntaxTextAreaUI.actionMap", null);
             RSyntaxTextArea textEditor = new RSyntaxTextArea();
             textEditor.setEditable(true);
             textEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
@@ -109,6 +118,9 @@ public class Test {
                 code = code.replace("\r\n", "\n");
                 code = code.replace("\n", "\r\n");
                 pyInterp.exec(code);
+                PyFunction func_first = pyInterp.get("first",PyFunction.class);
+                PyObject pyobj = func_first.__call__();
+                System.out.println(pyobj);
             });
         });
     }
