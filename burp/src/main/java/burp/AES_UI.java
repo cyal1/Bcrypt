@@ -1,16 +1,26 @@
 package burp;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
 import java.util.Objects;
 
 class AES_UI extends JPanel{
     public static final int COMPLETE_BODY = 0;
     public static final int URL_BODY_PARAM = 1;
     public static final int JSON_PARAM = 2;
+    private IExtensionHelpers helpers = BurpExtender.helpers;
 
 
     public static final int BASE64 = 0;
@@ -539,7 +549,7 @@ class AES_UI extends JPanel{
                 text = BurpExtender.helpers.urlDecode(text);
             }
             try {
-                plainText = CryptUtils.AESEncrypt(Cipher.DECRYPT_MODE, alg, secretKey, BurpExtender.decoder(cipherTextFormat, text), iv);
+                plainText = CryptUtils.AESEncrypt(Cipher.DECRYPT_MODE, alg, secretKey, decoder(cipherTextFormat, text), iv);
             } catch (Exception ex) {
                 outputTextArea.setText(ex.toString());
                 return;
@@ -595,9 +605,9 @@ class AES_UI extends JPanel{
                 return;
             }
             if (urlEncode) {
-                outputTextArea.setText(BurpExtender.helpers.urlEncode(BurpExtender.encoder(cipherTextFormat, encryptedText)));
+                outputTextArea.setText(BurpExtender.helpers.urlEncode(encoder(cipherTextFormat, encryptedText)));
             } else {
-                outputTextArea.setText(BurpExtender.encoder(cipherTextFormat, encryptedText));
+                outputTextArea.setText(encoder(cipherTextFormat, encryptedText));
             }
         });
 
@@ -619,4 +629,240 @@ class AES_UI extends JPanel{
             }
         });
     }
+
+    public void processHttpMessage_AES(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo){
+        String reqHost = messageInfo.getHttpService().getHost();
+        if (messageIsRequest){
+            if (!reqHost.equals(this.targetHost)) {return;}
+
+            IRequestInfo reqInfo = helpers.analyzeRequest(messageInfo);
+            java.util.List<String> headers = reqInfo.getHeaders();
+            if(this.requestOption == AES_UI.COMPLETE_BODY){
+                // encode body
+                byte[] tmpreq = messageInfo.getRequest();
+                byte[] messageBody;
+                try {
+                    messageBody = CryptUtils.AESEncrypt(Cipher.ENCRYPT_MODE, this.alg, this.secretKey, Arrays.copyOfRange(tmpreq, reqInfo.getBodyOffset(), tmpreq.length), this.iv);
+                } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidAlgorithmParameterException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                    BurpExtender.stderr.println("processHttpMessage encrypt requests body error: " + e);
+                    return;
+                }
+                byte[] updateMessage = helpers.buildHttpMessage(headers, encoder(this.responseCipherFormat, messageBody).getBytes(StandardCharsets.UTF_8));
+                messageInfo.setRequest(updateMessage);
+            }else{
+                // encode param
+                byte[] _request = messageInfo.getRequest();
+                try {
+                    if(reqInfo.getContentType() == IRequestInfo.CONTENT_TYPE_JSON){
+                        _request = update_req_params_json(_request, headers, this.requestParams, true);
+                    }else{
+                        _request = update_req_params(_request, headers, this.requestParams, true);
+                    }
+                } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
+                    BurpExtender.stderr.println("processHttpMessage encrypt requests param error: " + e);
+                    return;
+                }
+                messageInfo.setRequest(_request);
+            }
+        }else{
+            if(this.ignoreResponse){return;}
+            //response decode
+            IRequestInfo reqInfo = helpers.analyzeRequest(messageInfo);
+            IResponseInfo resInfo = helpers.analyzeResponse(messageInfo.getResponse());
+//            String URL = reqInfo.getUrl().toString();
+            java.util.List<String> headers = resInfo.getHeaders();
+            if (reqHost.equals(this.targetHost)){
+                if(this.requestOption == AES_UI.COMPLETE_BODY){
+                    // Complete Response Body decryption
+                    byte[] tmpreq = messageInfo.getResponse();
+//                    String messageBody = tmpreq.substring(resInfo.getBodyOffset()).trim();
+                    byte[] messageBody;
+                    byte[] cipherText = decoder(this.responseCipherFormat, new String(Arrays.copyOfRange(tmpreq, resInfo.getBodyOffset(), tmpreq.length)));
+                    try {
+                        messageBody = CryptUtils.AESEncrypt(Cipher.DECRYPT_MODE,this.alg, this.secretKey, cipherText, this.iv);
+                    } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidAlgorithmParameterException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                        BurpExtender.stderr.println("processHttpMessage decrypt response body error: " + e);
+                        return;
+                    }
+                    byte[] updateMessage = helpers.buildHttpMessage(headers, messageBody);
+                    messageInfo.setResponse(updateMessage);
+                }
+                else if(this.responseOption == AES_UI.URL_BODY_PARAM){ // TODO burp '+' to ' '
+                    byte[] _response = messageInfo.getResponse();
+//                    byte[] _request = messageInfo.getRequest();
+                    // TODO if json
+                    try {
+                        _response = this.update_req_params_json(_response, headers, this.requestParams, false);
+                    } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
+                        BurpExtender.stderr.println("processHttpMessage decrypt response params error: " + e);
+                        return;
+                    }
+                    messageInfo.setResponse(_response);
+                }
+
+            }
+        }
+    }
+
+    public void processProxyMessage_AES(boolean messageIsRequest, IInterceptedProxyMessage message){
+        String reqHost = message.getMessageInfo().getHttpService().getHost();
+        if (messageIsRequest){
+            if (!reqHost.equals(this.targetHost)) {return;}
+            IRequestInfo reqInfo = helpers.analyzeRequest(message.getMessageInfo());
+            IHttpRequestResponse messageInfo =  message.getMessageInfo();
+            java.util.List<String> headers = reqInfo.getHeaders();
+            if(this.requestOption == AES_UI.COMPLETE_BODY){
+                // decode body
+                byte[] tmpreq = message.getMessageInfo().getRequest();
+                byte[] messageBody;
+                byte[] cipherText = decoder(this.requestCipherFormat,new String(Arrays.copyOfRange(tmpreq, reqInfo.getBodyOffset(),tmpreq.length)));
+                try {
+                    messageBody = CryptUtils.AESEncrypt(Cipher.DECRYPT_MODE, this.alg, this.secretKey, cipherText, this.iv);
+                } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidAlgorithmParameterException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                    BurpExtender.stderr.println("processProxyMessage decrypt request body error: " + e);
+                    return;
+                }
+                byte[] updateMessage = helpers.buildHttpMessage(headers, messageBody);
+                message.getMessageInfo().setRequest(updateMessage);
+            }else{
+                byte[] request = messageInfo.getRequest();
+                byte[] _request;
+                try {
+                    if(reqInfo.getContentType() == IRequestInfo.CONTENT_TYPE_JSON){
+                        _request = update_req_params_json(request, headers, this.requestParams ,false);
+                    }else{
+//                        BurpExtender.stdout.println("params to decrypt: " + Arrays.toString(this.requestParams));
+                        _request = update_req_params(request, headers, this.requestParams, false);
+                    }
+                } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
+                    BurpExtender.stderr.println("processProxyMessage decrypt request params error: " + e);
+                    return;
+                }
+                messageInfo.setRequest(_request);
+            }
+        }else{
+            //response decode
+            if(this.ignoreResponse) { return; }
+            // PPM Response
+            IHttpRequestResponse messageInfo = message.getMessageInfo();
+            IRequestInfo reqInfo = helpers.analyzeRequest(messageInfo);
+            IResponseInfo resInfo = helpers.analyzeResponse(messageInfo.getResponse());
+//            String URL = reqInfo.getUrl().toString();
+            List<String> headers = resInfo.getHeaders();
+            if (!reqHost.equals(this.targetHost)) {return;}
+            if(this.responseOption == AES_UI.COMPLETE_BODY){
+                // Complete Response Body decrypt
+                byte[] tmpreq = messageInfo.getResponse();
+//                    String messageBody = tmpreq.substring(resInfo.getBodyOffset()).trim();
+                byte[] messageBody;
+                try {
+                    messageBody = CryptUtils.AESEncrypt(Cipher.ENCRYPT_MODE, this.alg, this.secretKey, Arrays.copyOfRange(tmpreq, resInfo.getBodyOffset(), tmpreq.length), this.iv);
+                } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidAlgorithmParameterException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                    BurpExtender.stderr.println("processProxyMessage encrypt response body error: " + e);
+                    return;
+                }
+                byte[] updateMessage = helpers.buildHttpMessage(headers, encoder(this.responseCipherFormat,messageBody).getBytes(StandardCharsets.UTF_8));
+                messageInfo.setResponse(updateMessage);
+            }
+            else if(this.responseOption == AES_UI.URL_BODY_PARAM){
+                byte[] _response = messageInfo.getResponse();
+                // TODO if json
+                try {
+                    _response = this.update_req_params_json(_response, headers, this.responseParams, true);
+                } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
+                    BurpExtender.stderr.println("processProxyMessage encrypt response params  error: " + e);
+                    return;
+                }
+                messageInfo.setResponse(_response);
+            }
+        }
+    }
+    public byte[] update_req_params (byte[] _request, List<String> headers, String[] _params, Boolean _do_enc) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+        for (String param : _params) {
+            IParameter _p = helpers.getRequestParameter(_request, param);
+            if (_p == null || _p.getName().length() == 0) {
+                continue;
+            }
+            byte[] _str;
+            if (_do_enc) {
+                _str = CryptUtils.AESEncrypt(Cipher.ENCRYPT_MODE, this.alg, this.secretKey, _p.getValue().trim().getBytes(StandardCharsets.UTF_8), this.iv);
+
+                _str = encoder(this.responseCipherFormat, _str).getBytes(StandardCharsets.UTF_8);
+//                if(this.responseURLEncode){
+//                    _str = helpers.urlEncode(_str);
+//                }
+            } else {
+                String p = _p.getValue().trim();
+                if(this.requestURLEncode){
+                    p = helpers.urlDecode(_p.getValue().trim());
+                }
+                byte[] cipherText = decoder(this.requestCipherFormat, p);
+                _str = CryptUtils.AESEncrypt(Cipher.DECRYPT_MODE, this.alg, this.secretKey, cipherText, this.iv);
+            }
+            IParameter _newP = helpers.buildParameter(param, new String(_str), _p.getType());
+            _request = helpers.removeParameter(_request, _p);
+            _request = helpers.addParameter(_request, _newP);
+            IRequestInfo reqInfo2 = helpers.analyzeRequest(_request);
+            String tmpreq = new String(_request);
+            String messageBody = tmpreq.substring(reqInfo2.getBodyOffset()).trim();
+            _request = helpers.buildHttpMessage(headers, messageBody.getBytes());
+        }
+        return _request;
+    }
+
+    public byte[] update_req_params_json(byte[] _request, List<String> headers, String[] _params, Boolean _do_enc) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+        for (String param : _params) {
+            IParameter _p = helpers.getRequestParameter(_request, param);
+            if (_p == null || _p.getName().length() == 0) {
+                continue;
+            }
+            byte[] _str;
+            if (_do_enc) {
+                _str = CryptUtils.AESEncrypt(Cipher.ENCRYPT_MODE, this.alg, this.secretKey, _p.getValue().trim().getBytes(StandardCharsets.UTF_8), this.iv);
+                _str = encoder(this.requestCipherFormat, _str).getBytes(StandardCharsets.UTF_8);
+            } else {
+                _str = CryptUtils.AESEncrypt(Cipher.DECRYPT_MODE, this.alg, this.secretKey, decoder(this.requestCipherFormat,_p.getValue().trim()), this.iv);
+            }
+
+            IRequestInfo reqInfo = helpers.analyzeRequest(_request);
+            String tmpreq = new String(_request);
+            String messageBody = tmpreq.substring(reqInfo.getBodyOffset()).trim();
+
+            int _fi = messageBody.indexOf(param);
+            if (_fi < 0) {
+                continue;
+            }
+            _fi = _fi + param.length() + 3;
+            int _si = messageBody.indexOf("\"", _fi);
+            messageBody = messageBody.substring(0, _fi) + new String(_str) + messageBody.substring(_si);
+            _request = helpers.buildHttpMessage(headers, messageBody.getBytes());
+        }
+        return _request;
+    }
+
+    public  byte[] decoder(int cipherTextFormat, String s) {
+        if (cipherTextFormat == AES_UI.BASE64) {
+//            return BurpExtender.helpers.base64Decode(s);
+            return Base64.getDecoder().decode(s);
+        }
+        if (cipherTextFormat == AES_UI.HEX) {
+            return BurpExtender.hexToBytes(s);
+        }
+        // bytes
+        return s.getBytes(StandardCharsets.UTF_8);
+    }
+
+    public  String encoder(int cipherTextFormat, byte[] b) {
+        if (cipherTextFormat == AES_UI.BASE64) {
+//            return BurpExtender.helpers.base64Encode(b);
+            return Base64.getEncoder().encodeToString(b);
+        }
+        if (cipherTextFormat == AES_UI.HEX) {
+            return BurpExtender.bytesToHex(b);
+        }
+        // bytes
+        return new String(b);
+    }
+
+
 }

@@ -32,7 +32,6 @@ public class Send2Xray extends JPanel {
         this.add(portInput);
         this.add(checkBtn);
         this.add(statusLabel);
-
     }
 
     public void checkStatusLabel(){
