@@ -43,7 +43,7 @@ public class Send2Xray extends JPanel {
             socket.close();
             this.setLabelStatus("success");
         }catch (IOException ioException) {
-            BurpExtender.stderr.println(ioException);
+            BurpExtender.stderr.println("Send2Xray: " + ioException);
             this.setLabelStatus("fail");
         }
     }

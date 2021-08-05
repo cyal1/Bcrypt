@@ -4,12 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.math.BigInteger;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
-public class BurpExtender implements IBurpExtender,ITab,IContextMenuFactory,IExtensionStateListener,IHttpListener,IProxyListener{
+public class BurpExtender implements IBurpExtender,ITab,IExtensionStateListener,IHttpListener,IProxyListener{
     private JTabbedPane tabPane;
     private Send2Xray send2xray;
     private IBurpExtenderCallbacks callbacks;
@@ -43,7 +39,7 @@ public class BurpExtender implements IBurpExtender,ITab,IContextMenuFactory,IExt
 
             // add the custom tab to Burp's UI
             callbacks.addSuiteTab(BurpExtender.this);
-            callbacks.registerContextMenuFactory(BurpExtender.this);
+            callbacks.registerContextMenuFactory(new Send2XrayListener(this.send2xray));
             callbacks.registerExtensionStateListener(BurpExtender.this);
             callbacks.registerHttpListener(BurpExtender.this);
             callbacks.registerProxyListener(BurpExtender.this);
@@ -61,18 +57,6 @@ public class BurpExtender implements IBurpExtender,ITab,IContextMenuFactory,IExt
     @Override
     public Component getUiComponent() {
         return this.tabPane;
-    }
-
-    @Override
-    public List<JMenuItem> createMenuItems(IContextMenuInvocation invocation) throws NoSuchAlgorithmException, KeyManagementException {
-        List<JMenuItem> menu = new ArrayList<>();
-        JMenuItem send2XrayMenu = new JMenuItem("Send to Xray");
-//        JMenuItem CustomEncrypt = new JMenuItem("Customized Encrypt");
-//        JMenuItem CustomDecrypt = new JMenuItem("Customized Decrypt");
-        Send2XrayListener mil = new Send2XrayListener(this.send2xray, invocation.getSelectedMessages());
-        send2XrayMenu.addActionListener(mil);
-        menu.add(send2XrayMenu);
-        return menu;
     }
 
     @Override

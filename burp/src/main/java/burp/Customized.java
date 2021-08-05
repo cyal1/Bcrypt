@@ -15,7 +15,7 @@ public class Customized extends JPanel{
     private String code;
     public static PythonInterpreter interpreter = new PythonInterpreter();
     public boolean start;
-    private String defaultCode="# coding:utf-8\n" +
+    private final String defaultCode="# coding:utf-8\n" +
             "\n" +
             "#           processProxyMessage                     processHttpMessage\n" +
             "#\n" +

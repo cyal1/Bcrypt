@@ -19,7 +19,7 @@ import java.util.Objects;
 class AES_UI extends JPanel{
     public static final int COMPLETE_BODY = 0;
     public static final int URL_BODY_PARAM = 1;
-    private IExtensionHelpers helpers = BurpExtender.helpers;
+    private final IExtensionHelpers helpers = BurpExtender.helpers;
 
 
     public static final int BASE64 = 0;
@@ -143,6 +143,7 @@ class AES_UI extends JPanel{
         algComboBox.setModel(defaultComboBoxModel1);
         algComboBox.setSelectedIndex(0);
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.weightx = 1.0;
@@ -151,6 +152,7 @@ class AES_UI extends JPanel{
         globalSettingPanel.add(algComboBox, gbc);
         ivTextField = new JTextField();
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.weightx = 1.0;
@@ -160,12 +162,14 @@ class AES_UI extends JPanel{
         final JLabel label3 = new JLabel();
         label3.setText("iv");
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.EAST;
         globalSettingPanel.add(label3, gbc);
         secretKeyTextField = new JTextField();
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.weightx = 1.0;
@@ -175,6 +179,7 @@ class AES_UI extends JPanel{
         startButton = new JButton();
         startButton.setText("Start");
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 1;
         gbc.gridy = 4;
         gbc.weightx = 1.0;
@@ -182,6 +187,7 @@ class AES_UI extends JPanel{
         globalSettingPanel.add(startButton, gbc);
         targetHostTextField = new JTextField();
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 1;
         gbc.gridy = 3;
         gbc.weightx = 1.0;
@@ -191,6 +197,7 @@ class AES_UI extends JPanel{
         final JLabel label4 = new JLabel();
         label4.setText("target host");
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.EAST;
@@ -201,6 +208,7 @@ class AES_UI extends JPanel{
         reqSettingPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Request Option to Decrypt/Encrypt", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         requestParamTextField = new JTextField();
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.WEST;
@@ -211,6 +219,7 @@ class AES_UI extends JPanel{
         requestURLCheckBox.setSelected(false);
         requestURLCheckBox.setText("URL Decode/Encode");
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 1;
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.WEST;
@@ -221,6 +230,7 @@ class AES_UI extends JPanel{
         defaultComboBoxModel2.addElement("parameters");
         requestComboBox.setModel(defaultComboBoxModel2);
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
@@ -228,6 +238,7 @@ class AES_UI extends JPanel{
         final JLabel label5 = new JLabel();
         label5.setText("ciphertext location");
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.EAST;
@@ -235,6 +246,7 @@ class AES_UI extends JPanel{
         final JLabel label6 = new JLabel();
         label6.setText("params separated with space");
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.EAST;
@@ -242,6 +254,7 @@ class AES_UI extends JPanel{
         final JLabel label7 = new JLabel();
         label7.setText("request ciphertext format");
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.EAST;
@@ -254,6 +267,7 @@ class AES_UI extends JPanel{
         requestCipherFormatComboBox.setModel(defaultComboBoxModel3);
         requestCipherFormatComboBox.setSelectedIndex(0);
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.WEST;
@@ -264,6 +278,7 @@ class AES_UI extends JPanel{
         respSettingPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Response Option to Decrypt/Encrypt", TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         responseParamTextField = new JTextField();
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.WEST;
@@ -272,6 +287,7 @@ class AES_UI extends JPanel{
         responseURLCheckBox = new JCheckBox();
         responseURLCheckBox.setText("URL Decode/Encode");
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 1;
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.WEST;
@@ -282,6 +298,7 @@ class AES_UI extends JPanel{
         defaultComboBoxModel4.addElement("parameters");
         responseComboBox.setModel(defaultComboBoxModel4);
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
@@ -289,6 +306,7 @@ class AES_UI extends JPanel{
         final JLabel label8 = new JLabel();
         label8.setText("ciphertext location");
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.EAST;
@@ -296,6 +314,7 @@ class AES_UI extends JPanel{
         final JLabel label9 = new JLabel();
         label9.setText("params separated with space");
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.EAST;
@@ -308,6 +327,7 @@ class AES_UI extends JPanel{
         responseCipherFormatComboBox.setModel(defaultComboBoxModel5);
         responseCipherFormatComboBox.setSelectedIndex(0);
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.WEST;
@@ -315,6 +335,7 @@ class AES_UI extends JPanel{
         final JLabel label10 = new JLabel();
         label10.setText("response ciphertext format");
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.EAST;
@@ -322,6 +343,7 @@ class AES_UI extends JPanel{
         ignoreResponseCheckBox = new JCheckBox();
         ignoreResponseCheckBox.setText("Ignore response");
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 1;
         gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.WEST;
@@ -379,6 +401,7 @@ class AES_UI extends JPanel{
         inputTextArea.setLineWrap(true);
         inputTextArea.setWrapStyleWord(true);
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 1.0;
@@ -397,6 +420,7 @@ class AES_UI extends JPanel{
         outputTextArea.setLineWrap(true);
         outputTextArea.setWrapStyleWord(true);
         gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2,2,2,2);
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 1.0;
