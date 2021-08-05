@@ -15,7 +15,7 @@ public class Customized extends JPanel{
     private String code;
     public static PythonInterpreter interpreter = new PythonInterpreter();
     public boolean start;
-    private final String defaultCode="# coding:utf-8\n" +
+    private String defaultCode="# coding:utf-8\n" +
             "\n" +
             "#           processProxyMessage                     processHttpMessage\n" +
             "#\n" +
@@ -223,14 +223,14 @@ public class Customized extends JPanel{
     }
 
     public void loadConfig(IBurpExtenderCallbacks callbacks){
-        String code = callbacks.loadExtensionSetting("code");
-        if(!code.equals("")){
-            textEditor.setText(code);
+        String myCode = callbacks.loadExtensionSetting("code");
+        if(myCode != null){
+            textEditor.setText(myCode);
         }else{
-            textEditor.setText(this.defaultCode);
+            textEditor.setText(defaultCode);
         }
         String docs = callbacks.loadExtensionSetting("docs");
-        if(!docs.equals("")){
+        if(docs != null){
             docsEditor.setText(docs);
         }else{
             String docs1 = "# https://github.com/PortSwigger/example-event-listeners/blob/master/python/EventListeners.py\n" +

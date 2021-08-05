@@ -19,7 +19,6 @@ import java.util.Objects;
 class AES_UI extends JPanel{
     public static final int COMPLETE_BODY = 0;
     public static final int URL_BODY_PARAM = 1;
-    public static final int JSON_PARAM = 2;
     private IExtensionHelpers helpers = BurpExtender.helpers;
 
 
@@ -89,10 +88,22 @@ class AES_UI extends JPanel{
     }
 
     public void loadConfig(IBurpExtenderCallbacks callbacks){
-        algComboBox.setSelectedIndex(Integer.parseInt(callbacks.loadExtensionSetting("alg")));
-        ivTextField.setText(callbacks.loadExtensionSetting("iv"));
-        secretKeyTextField.setText(callbacks.loadExtensionSetting("secretKey"));
-        targetHostTextField.setText(callbacks.loadExtensionSetting("targetHost"));
+        String alg = callbacks.loadExtensionSetting("alg");
+        if(alg != null){
+            algComboBox.setSelectedIndex(Integer.parseInt(alg));
+        }
+        String iv = callbacks.loadExtensionSetting("iv");
+        if(iv != null){
+            ivTextField.setText(iv);
+        }
+        String sk= callbacks.loadExtensionSetting("secretKey");
+        if(sk != null){
+            secretKeyTextField.setText(sk);
+        }
+        String host = callbacks.loadExtensionSetting("targetHost");
+        if(host != null){
+            targetHostTextField.setText(host);
+        }
     }
 
     public AES_UI() {
@@ -408,13 +419,13 @@ class AES_UI extends JPanel{
 
                 secretKey = secretKeyTextField.getText().getBytes(StandardCharsets.UTF_8);
                 if(secretKey.length != 16){
-                    JOptionPane.showConfirmDialog(new JPanel(),"secret key must be 16 bytes long","Warning", JOptionPane.OK_CANCEL_OPTION);
+                    JOptionPane.showMessageDialog(new JPanel(),"secret key must be 16 bytes long","Warning", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 iv = ivTextField.getText().getBytes(StandardCharsets.UTF_8);
                 if((ivTextField.isEnabled() && iv.length != 16)){
-                    JOptionPane.showConfirmDialog(new JPanel(),"iv must be 16 bytes long","Warning", JOptionPane.OK_CANCEL_OPTION);
+                    JOptionPane.showMessageDialog(new JPanel(),"iv must be 16 bytes long","Warning", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 if(!ivTextField.isEnabled()){
@@ -422,7 +433,7 @@ class AES_UI extends JPanel{
                 }
                 targetHost = targetHostTextField.getText();
                 if(targetHost.equals("")){
-                    JOptionPane.showConfirmDialog(new JPanel(),"pls input a valid host","Warning", JOptionPane.OK_CANCEL_OPTION);
+                    JOptionPane.showMessageDialog(new JPanel(),"pls input a valid host","Warning", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 alg = Objects.requireNonNull(algComboBox.getSelectedItem()).toString();
@@ -863,6 +874,4 @@ class AES_UI extends JPanel{
         // bytes
         return new String(b);
     }
-
-
 }

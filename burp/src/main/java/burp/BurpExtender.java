@@ -26,25 +26,31 @@ public class BurpExtender implements IBurpExtender,ITab,IContextMenuFactory,IExt
         helpers = callbacks.getHelpers();
         this.callbacks = callbacks;
 
-        this.tabPane = new JTabbedPane();
+        SwingUtilities.invokeLater(() -> {
+            tabPane = new JTabbedPane();
 
-        this.send2xray = new Send2Xray();
-        this.aesTab = new AES_UI();
-        this.custom = new Customized();
+            send2xray = new Send2Xray();
+            aesTab = new AES_UI();
+            custom = new Customized();
 
-        this.tabPane.addTab("Customized",custom);
-        this.tabPane.addTab("AES", aesTab);
-        this.tabPane.addTab("Send2Xray", send2xray);
+            tabPane.addTab("Customized",custom);
+            tabPane.addTab("AES", aesTab);
+            tabPane.addTab("Send2Xray", send2xray);
 
-        this.send2xray.loadConfig(this.callbacks);
-        this.aesTab.loadConfig(this.callbacks);
-        this.custom.loadConfig(this.callbacks);
+            // customize our UI components
+            callbacks.customizeUiComponent(send2xray);
+            callbacks.customizeUiComponent(aesTab);
 
-        callbacks.addSuiteTab(BurpExtender.this);
-        callbacks.registerContextMenuFactory(this);
-        callbacks.registerExtensionStateListener(this);
-        callbacks.registerHttpListener(this);
-        callbacks.registerProxyListener(this);
+            // add the custom tab to Burp's UI
+            callbacks.addSuiteTab(BurpExtender.this);
+            callbacks.registerContextMenuFactory(BurpExtender.this);
+            callbacks.registerExtensionStateListener(BurpExtender.this);
+            callbacks.registerHttpListener(BurpExtender.this);
+            callbacks.registerProxyListener(BurpExtender.this);
+            send2xray.loadConfig(callbacks);
+            aesTab.loadConfig(callbacks);
+            custom.loadConfig(callbacks);
+        });
     }
 
     @Override
