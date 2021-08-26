@@ -12,7 +12,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 
@@ -877,8 +876,7 @@ class AES_UI extends JPanel{
 
     public  byte[] decoder(int cipherTextFormat, String s) {
         if (cipherTextFormat == AES_UI.BASE64) {
-//            return BurpExtender.helpers.base64Decode(s);
-            return Base64.getDecoder().decode(s);
+            return BurpExtender.helpers.base64Decode(s);
         }
         if (cipherTextFormat == AES_UI.HEX) {
             return BurpExtender.hexToBytes(s);
@@ -889,8 +887,7 @@ class AES_UI extends JPanel{
 
     public  String encoder(int cipherTextFormat, byte[] b) {
         if (cipherTextFormat == AES_UI.BASE64) {
-//            return BurpExtender.helpers.base64Encode(b);
-            return Base64.getEncoder().encodeToString(b);
+            return BurpExtender.helpers.base64Encode(b);
         }
         if (cipherTextFormat == AES_UI.HEX) {
             return BurpExtender.bytesToHex(b);

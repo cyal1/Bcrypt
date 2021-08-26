@@ -38,73 +38,70 @@ public class Send2XrayListener implements IContextMenuFactory{
     @Override
     public List<JMenuItem> createMenuItems(IContextMenuInvocation invocation) {
         List<JMenuItem> menu = new ArrayList<>();
-        if (invocation != null && invocation.getSelectedMessages()[0] != null){
+        if (invocation!=null && invocation.getSelectedMessages() != null && invocation.getSelectedMessages()[0]!=null && invocation.getSelectedMessages()[0].getHttpService()!=null){
             JMenuItem send2XrayMenu = new JMenuItem("Send to Xray");
 //        JMenuItem CustomEncrypt = new JMenuItem("Customized Encrypt");
 //        JMenuItem CustomDecrypt = new JMenuItem("Customized Decrypt");
 //            Send2XrayListener mil = new Send2XrayListener(invocation.getSelectedMessages());
             IHttpRequestResponse[] arr = invocation.getSelectedMessages();
-            send2XrayMenu.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    for (IHttpRequestResponse message : arr) {
-                        IRequestInfo ir = BurpExtender.helpers.analyzeRequest(message);
-                        List<String> newHeader = ir.getHeaders();
-                        newHeader.set(0, ir.getMethod() + " " + ir.getUrl() + " HTTP/1.1");
-                        String protocol = message.getHttpService().getProtocol(); // https
-                        String host = message.getHttpService().getHost();
-                        int port = message.getHttpService().getPort();
-                        byte[] body = Arrays.copyOfRange(message.getRequest(),ir.getBodyOffset(),message.getRequest().length);
-                        byte[] proxy_request = BurpExtender.helpers.buildHttpMessage(newHeader,body);
-                        Socket socket;
-                        SSLSocket sslSocket = null;
-                        try {
-                            socket = new Socket();
-                            socket.connect(new InetSocketAddress(send2Xray.getHost(), send2Xray.getPort()),5000);
-                            socket.setSoTimeout(5000);
-                            if(protocol.equals("https")){
+            send2XrayMenu.addActionListener(e -> {
+                for (IHttpRequestResponse message : arr) {
+                    IRequestInfo ir = BurpExtender.helpers.analyzeRequest(message);
+                    List<String> newHeader = ir.getHeaders();
+                    newHeader.set(0, ir.getMethod() + " " + ir.getUrl() + " HTTP/1.1");
+                    String protocol = message.getHttpService().getProtocol(); // https
+                    String host = message.getHttpService().getHost();
+                    int port = message.getHttpService().getPort();
+                    byte[] body = Arrays.copyOfRange(message.getRequest(),ir.getBodyOffset(),message.getRequest().length);
+                    byte[] proxy_request = BurpExtender.helpers.buildHttpMessage(newHeader,body);
+                    Socket socket;
+                    SSLSocket sslSocket = null;
+                    try {
+                        socket = new Socket();
+                        socket.connect(new InetSocketAddress(send2Xray.getHost(), send2Xray.getPort()),5000);
+                        socket.setSoTimeout(5000);
+                        if(protocol.equals("https")){
 //                    SSLSocketFactory factory = sslContext.getSocketFactory();
-                                doTunnelHandshake(socket, host, port);
-                                sslSocket = (SSLSocket)factory.createSocket(socket, host, port, true);
-                                sslSocket.setSoTimeout(5000);
-                                sslSocket.addHandshakeCompletedListener(
-                                        event -> {
+                            doTunnelHandshake(socket, host, port);
+                            sslSocket = (SSLSocket)factory.createSocket(socket, host, port, true);
+                            sslSocket.setSoTimeout(5000);
+                            sslSocket.addHandshakeCompletedListener(
+                                    event -> {
 //                                this.burpExtender.stdout.println("Handshake finished!");
 //                                this.burpExtender.stdout.println("\t CipherSuite:" + event.getCipherSuite());
 //                                this.burpExtender.stdout.println("\t SessionId " + event.getSession());
 //                                this.burpExtender.stdout.println("\t PeerHost " + event.getSession().getPeerHost());
-                                        }
-                                );
+                                    }
+                            );
+                        }
+                        try {
+                            DataOutputStream out;
+                            if(protocol.equals("https")){
+                                out = new DataOutputStream(sslSocket.getOutputStream());
+                            }else{
+                                out = new DataOutputStream(socket.getOutputStream());
                             }
                             try {
-                                DataOutputStream out;
                                 if(protocol.equals("https")){
-                                    out = new DataOutputStream(sslSocket.getOutputStream());
+                                    out.write(message.getRequest());
                                 }else{
-                                    out = new DataOutputStream(socket.getOutputStream());
-                                }
-                                try {
-                                    if(protocol.equals("https")){
-                                        out.write(message.getRequest());
-                                    }else{
-                                        out.write(proxy_request);
-                                    }
-                                }finally {
-                                    out.close();
+                                    out.write(proxy_request);
                                 }
                             }finally {
-                                socket.close();
-                                if(protocol.equals("https")){
-                                    sslSocket.close();
-                                }
+                                out.close();
                             }
-                        } catch (IOException ioException) {
-                            send2Xray.setLabelStatus("fail");
-                            BurpExtender.stderr.println(ioException);
+                        }finally {
+                            socket.close();
+                            if(protocol.equals("https")){
+                                sslSocket.close();
+                            }
                         }
+                    } catch (IOException ioException) {
+                        send2Xray.setLabelStatus("fail");
+                        BurpExtender.stderr.println(ioException);
                     }
-
                 }
+
             });
             menu.add(send2XrayMenu);
         }

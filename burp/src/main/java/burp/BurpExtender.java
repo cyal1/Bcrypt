@@ -38,8 +38,10 @@ public class BurpExtender implements IBurpExtender,ITab,IExtensionStateListener,
             callbacks.customizeUiComponent(aesTab);
 
             // add the custom tab to Burp's UI
+            callbacks.setExtensionName("Bcrypt");
             callbacks.addSuiteTab(BurpExtender.this);
             callbacks.registerContextMenuFactory(new Send2XrayListener(this.send2xray));
+            callbacks.registerContextMenuFactory(new ModifyRequest());
             callbacks.registerExtensionStateListener(BurpExtender.this);
             callbacks.registerHttpListener(BurpExtender.this);
             callbacks.registerProxyListener(BurpExtender.this);
