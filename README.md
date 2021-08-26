@@ -31,8 +31,9 @@ Reference [AES-Killer](https://github.com/Ebryx/AES-Killer) and  something enhan
 
 Context menu for Send request message to the specified proxy
 
-![image.gif](image.gif)
+Standalone version: https://github.com/cyal1/SendToXray/tree/requests_mode 
 
+![image.gif](image.gif)
 
 ### Convert Content-Type
 
