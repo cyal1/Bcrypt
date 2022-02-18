@@ -59,7 +59,7 @@ public class Customized extends JPanel{
             "\n" +
             "        statusCode = respInfo.getStatusCode()\n" +
             "        headers = respInfo.getHeaders()\n" +
-            "        body = response[respInfo.getBodyOffset():]\n" +
+            "        body = response[respInfo.getBodyOffset():].tostring()\n" +
             "\n" +
             "        headers.add(\"processHttpMessageResponse: test\")\n" +
             "\n" +
@@ -100,7 +100,7 @@ public class Customized extends JPanel{
             "\n" +
             "        statusCode = respInfo.getStatusCode()\n" +
             "        headers = respInfo.getHeaders()\n" +
-            "        body = response[respInfo.getBodyOffset():]\n" +
+            "        body = response[respInfo.getBodyOffset():].tostring()\n" +
             "\n" +
             "        # headers.add(\"Test: test\")\n" +
             "\n" +
