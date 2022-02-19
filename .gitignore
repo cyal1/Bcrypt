@@ -1,8 +1,8 @@
 .idea
 demo-example-code-snippets
 burp/burp.iml
+burp/build
 burp/src/META-INF
-burp/out
 burp/target/
 .DS_Store
 burp/src/main/java/META-INF

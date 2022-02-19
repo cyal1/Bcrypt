@@ -7,6 +7,7 @@ import org.python.util.PythonInterpreter;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 public class Customized extends JPanel{
     private final JButton button1;
@@ -15,134 +16,245 @@ public class Customized extends JPanel{
     private String code;
     public static PythonInterpreter interpreter = new PythonInterpreter();
     public boolean start;
-    private final String defaultCode="# coding:utf-8\n" +
-            "\n" +
-            "#           processProxyMessage                     processHttpMessage\n" +
-            "#\n" +
-            "# client -----------------------> burpSuit proxy ----------------------->  server\n" +
-            "#        <-----------------------                <-----------------------\n" +
-            "\n" +
-            "from burp import CryptUtils\n" +
-            "\n" +
-            "def aes_cbc_encode(key, plainText, iv):\n" +
-            "    # TextArea on the right panel for more information.\n" +
-            "    return helper.base64Encode(CryptUtils.AESEncrypt(1, \"AES/CBC/PKCS5Padding\", key, plainText, iv))\n" +
-            "\n" +
-            "def processHttpMessage(messageIsRequest, messageInfo):\n" +
-            "\n" +
-            "    # Host = messageInfo.getHttpService().getHost()\n" +
-            "\n" +
-            "    # if Host != \"www.baidu.com\":\n" +
-            "    #   return\n" +
-            "\n" +
-            "    if messageIsRequest:\n" +
-            "        # processHttpMessage request\n" +
-            "        return\n" +
-            "        request = messageInfo.getRequest()\n" +
-            "        reqInfo = helper.analyzeRequest(request)\n" +
-            "\n" +
-            "        headers =  reqInfo.getHeaders()\n" +
-            "        parameters = reqInfo.getParameters()\n" +
-            "        body = request[reqInfo.getBodyOffset():]\n" +
-            "\n" +
-            "        # headers.add(\"processHttpMessageRequest: test\")\n" +
-            "        # parameters.add(helper.buildParameter(\"debug\",\"true\", IParameter.PARAM_URL))\n" +
-            "\n" +
-            "        newMessage = helper.buildHttpMessage(headers, body)\n" +
-            "        messageInfo.setRequest(newMessage)\n" +
-            "\n" +
-            "    else:\n" +
-            "        # processHttpMessage response\n" +
-            "\n" +
-            "        response = messageInfo.getResponse()\n" +
-            "        respInfo = helper.analyzeResponse(response)\n" +
-            "\n" +
-            "        statusCode = respInfo.getStatusCode()\n" +
-            "        headers = respInfo.getHeaders()\n" +
-            "        body = response[respInfo.getBodyOffset():].tostring()\n" +
-            "\n" +
-            "        headers.add(\"processHttpMessageResponse: test\")\n" +
-            "\n" +
-            "        newMessage = helper.buildHttpMessage(headers, body)\n" +
-            "        messageInfo.setResponse(newMessage)\n" +
-            "\n" +
-            "\n" +
-            "def processProxyMessage(messageIsRequest, messageInfo):\n" +
-            "\n" +
-            "    return\n" +
-            "\n" +
-            "    # Host = messageInfo.getHttpService().getHost()\n" +
-            "\n" +
-            "    # if Host != \"www.baidu.com\":\n" +
-            "    #   return\n" +
-            "\n" +
-            "    if messageIsRequest:\n" +
-            "        # processProxyMessage request\n" +
-            "\n" +
-            "        request = messageInfo.getRequest()\n" +
-            "        reqInfo = helper.analyzeRequest(request)\n" +
-            "\n" +
-            "        headers =  reqInfo.getHeaders()\n" +
-            "        parameters = reqInfo.getParameters()\n" +
-            "        body = request[reqInfo.getBodyOffset():]\n" +
-            "\n" +
-            "        # headers.add(\"Test: test\")\n" +
-            "        # parameters.add(helper.buildParameter(\"debug\",\"true\", IParameter.PARAM_URL))\n" +
-            "\n" +
-            "        newMessage = helper.buildHttpMessage(headers, body)\n" +
-            "        messageInfo.setRequest(newMessage)\n" +
-            "\n" +
-            "    else:\n" +
-            "        # processProxyMessage response\n" +
-            "\n" +
-            "        response = messageInfo.getResponse()\n" +
-            "        respInfo = helper.analyzeResponse(response)\n" +
-            "\n" +
-            "        statusCode = respInfo.getStatusCode()\n" +
-            "        headers = respInfo.getHeaders()\n" +
-            "        body = response[respInfo.getBodyOffset():].tostring()\n" +
-            "\n" +
-            "        # headers.add(\"Test: test\")\n" +
-            "\n" +
-            "        newMessage = helper.buildHttpMessage(headers, body)\n" +
-            "        messageInfo.setResponse(newMessage)\n" +
-            "\n" +
-            "\n" +
-            "#    # third-party pycrypto API for Jython\n" +
-            "#\n" +
-            "#    from base64 import b64decode,b64encode\n" +
-            "#    import sys\n" +
-            "#    # git clone https://github.com/csm/jycrypto.git\n" +
-            "#    # implementation of the pycrypto API for Jython\n" +
-            "#    pycryptoLib = \"/tmp/jycrypto/lib\"\n" +
-            "#    if pycryptoLib not in sys.path:\n" +
-            "#        sys.path.append(pycryptoLib)\n" +
-            "#    from Crypto.Cipher import AES\n" +
-            "#    \n" +
-            "#    def aes_decrypt_ecb(data, key):\n" +
-            "#       aes = AES.new(key, AES.MODE_ECB)\n" +
-            "#       decrypted_text = aes.decrypt(b64decode(data))\n" +
-            "#       decrypted_text = decrypted_text[:-ord(decrypted_text[-1])]\n" +
-            "#       return decrypted_text\n" +
-            "#    \n" +
-            "#    def aes_encrypt_ecb(data, key):\n" +
-            "#       while len(data) % 16 != 0:\n" +
-            "#           data += (16 - len(data) % 16) * chr(16 - len(data) % 16)\n" +
-            "#       data = str.encode(data)\n" +
-            "#       aes = AES.new(str.encode(key), AES.MODE_ECB)\n" +
-            "#       return str(base64.b64encode(aes.encrypt(data)))\n" +
-            "#    \n" +
-            "#    def aes_encrypt_cbc(data, key, iv):\n" +
-            "#        bs = AES.block_size\n" +
-            "#        pad = lambda s: s + (bs - len(s) % bs) * chr(bs - len(s) % bs)\n" +
-            "#        cipher = AES.new(key, AES.MODE_CBC, iv)\n" +
-            "#        data = cipher.encrypt(pad(data))\n" +
-            "#        return b64encode(data)\n" +
-            "#     \n" +
-            "#    def aes_decrypt_cbc(data, key, iv):\n" +
-            "#        decipher = AES.new(key, AES.MODE_CBC, iv)\n" +
-            "#        plaintext = decipher.decrypt(b64decode(data))\n" +
-            "#        return plaintext\n";
+    private final String defaultCode= """
+            # *_* coding: utf-8 *_*
+
+            #           processProxyMessage                     processHttpMessage
+            #
+            # client -----------------------> burpSuit proxy ----------------------->  server
+            #        <-----------------------                <-----------------------
+
+            from burp import CryptUtils
+
+
+            def aes_cbc_encode(key, plainText, iv):
+                # TextArea on the right panel for more information.
+                return helper.base64Encode(CryptUtils.AESEncrypt(1, "AES/CBC/PKCS5Padding", key, plainText, iv))
+
+            def MyFilter(messageIsRequest, messageInfo):
+                Host = messageInfo.getHttpService().getHost()
+            #    if Host != "www.baidu.com":
+            #        return
+                if not messageIsRequest:
+                     mime_type = helper.analyzeResponse(messageInfo.getResponse()).getInferredMimeType()
+            #         print(mime_type)
+                     if mime_type != "HTML" or mime_type != "JSON" or mime_type != "XML" or mime_type!= "script":
+                        return\s
+                    \s
+            def processHttpMessage(messageIsRequest, messageInfo):
+                MyFilter(messageIsRequest, messageInfo)
+               \s
+                if messageIsRequest:
+                    # processHttpMessage request
+                   \s
+                    request = messageInfo.getRequest()
+                    reqInfo = helper.analyzeRequest(request)
+                    headers =  reqInfo.getHeaders()
+                    parameters = reqInfo.getParameters()
+                    body = request[reqInfo.getBodyOffset():]
+
+                    # headers.add("processHttpMessageRequest: test")
+                    # parameters.add(helper.buildParameter("debug","true", IParameter.PARAM_URL))
+
+                    newMessage = helper.buildHttpMessage(headers, body)
+                    messageInfo.setRequest(newMessage)
+
+                else:
+                    # processHttpMessage response
+
+                    response = messageInfo.getResponse()
+                    respInfo = helper.analyzeResponse(response)
+                    statusCode = respInfo.getStatusCode()
+                    headers = respInfo.getHeaders()
+                    body = response[respInfo.getBodyOffset():] # []byte
+            #        print body.tostring().decode("utf8")
+
+            #        headers.add("processHttpMessageResponse: test")
+
+                    newMessage = helper.buildHttpMessage(headers, body)
+                    messageInfo.setResponse(newMessage)
+
+
+            def processProxyMessage(messageIsRequest, messageInfo):
+                MyFilter(messageIsRequest, messageInfo)
+               \s
+                if messageIsRequest:
+                    # processProxyMessage request
+
+                    request = messageInfo.getRequest()
+                    reqInfo = helper.analyzeRequest(request)
+                    headers =  reqInfo.getHeaders()
+                    parameters = reqInfo.getParameters()
+                    body = request[reqInfo.getBodyOffset():]
+
+                    # headers.add("Test: test")
+                    # parameters.add(helper.buildParameter("debug","true", IParameter.PARAM_URL))
+
+                    newMessage = helper.buildHttpMessage(headers, body)
+                    messageInfo.setRequest(newMessage)
+
+                else:
+                    # processProxyMessage response
+
+                    response = messageInfo.getResponse()
+                    respInfo = helper.analyzeResponse(response)
+                    statusCode = respInfo.getStatusCode()
+                    headers = respInfo.getHeaders()
+                    body = response[respInfo.getBodyOffset():]
+
+                    # headers.add("Test: test")
+
+                    newMessage = helper.buildHttpMessage(headers, body)
+                    messageInfo.setResponse(newMessage)
+
+
+            #    # third-party pycrypto API for Jython
+            #
+            #    from base64 import b64decode,b64encode
+            #    import sys
+            #    # git clone https://github.com/csm/jycrypto.git # Jython 使用 Crypto 需要下载该项目
+            #    # implementation of the pycrypto API for Jython
+            #    # pycryptoLib = "/tmp/jycrypto/lib"
+            #    # if pycryptoLib not in sys.path:
+            #        # sys.path.append(pycryptoLib)
+            #    # from Crypto.Cipher import AES
+            #   \s
+            #    def aes_decrypt_ecb(data, key):
+            #       aes = AES.new(key, AES.MODE_ECB)
+            #       decrypted_text = aes.decrypt(b64decode(data))
+            #       decrypted_text = decrypted_text[:-ord(decrypted_text[-1])]
+            #       return decrypted_text
+            #   \s
+            #    def aes_encrypt_ecb(data, key):
+            #       while len(data) % 16 != 0:
+            #           data += (16 - len(data) % 16) * chr(16 - len(data) % 16)
+            #       data = str.encode(data)
+            #       aes = AES.new(str.encode(key), AES.MODE_ECB)
+            #       return str(base64.b64encode(aes.encrypt(data)))
+            #   \s
+            #    def aes_encrypt_cbc(data, key, iv):
+            #        bs = AES.block_size
+            #        pad = lambda s: s + (bs - len(s) % bs) * chr(bs - len(s) % bs)
+            #        cipher = AES.new(key, AES.MODE_CBC, iv)
+            #        data = cipher.encrypt(pad(data))
+            #        return b64encode(data)
+            #    \s
+            #    def aes_decrypt_cbc(data, key, iv):
+            #        decipher = AES.new(key, AES.MODE_CBC, iv)
+            #        plaintext = decipher.decrypt(b64decode(data))
+            #        return plaintext
+            """;
+    private final String defaultDocs = """
+            # https://github.com/PortSwigger/example-event-listeners/blob/master/python/EventListeners.py
+
+            # Notice
+
+            ## To create a byte-compatible object to pass to the Burp Extender APIs:
+            ```
+                bytearray("foo") # => new byte[] {'f', 'o', 'o'}
+            ```
+            ## To convert an existing list to a Java array:
+            ```
+                from jarray import array
+                array([1, 2, 3], 'i') # => new int[] {1, 2, 3}
+                # 'i' is integer
+            ```
+
+            ## Useful java classes
+            ```
+            from burp import CryptUtils, BurpExtender
+
+            // ECB Mode iv need be None
+            // @MODE\tENCRYPT_MODE = 1; @DECRYPT_MODE = 2;
+            // @alg
+            //\tAES/CBC/PKCS5Padding
+            //\tAES/ECB/PKCS5Padding
+            //\tAES/CBC/NoPadding
+            //\tAES/ECB/NoPadding
+
+            byte[] CryptUtils.AESEncrypt(int MODE,String alg, byte[] key, byte[] plainText, byte[] iv)
+
+            String BurpExtender.bytesToHex(byte[] b)
+            byte[] BurpExtender.hexToBytes(String s)
+
+            eg.
+            \tCryptUtils.AESEncrypt(1, "AES/ECB/PKCS5Padding",b"aaaaaaaaaaaaaaaa",b'plainText',None)
+            \tprint(BurpExtender.byteToHex(b'abc'))
+            ```
+
+            ## Look for more api docs.
+             >> Burp Suite -> Extender -> APIs
+            \s
+            ---
+            ** boolean  messageIsRequest **
+
+            ** IHttpRequestResponse  messageInfo **
+            *
+                 byte[] getRequest();
+                 byte[] getResponse();
+                 String getComment();
+                 void setRequest(byte[] message);
+                 void setResponse(byte[] message);
+            *
+            ** IRequestInfo reqInfo **
+            *
+                static final byte CONTENT_TYPE_NONE = 0;
+                static final byte CONTENT_TYPE_URL_ENCODED = 1;
+                static final byte CONTENT_TYPE_MULTIPART = 2;
+                static final byte CONTENT_TYPE_XML = 3;
+                static final byte CONTENT_TYPE_JSON = 4;
+                static final byte CONTENT_TYPE_AMF = 5;
+                static final byte CONTENT_TYPE_UNKNOWN = -1;
+                String getMethod();
+                URL getUrl();
+                List<String> getHeaders();
+                List<IParameter> getParameters();
+                int getBodyOffset();
+                byte getContentType();
+            *
+            ** IResponseInfo respInfo **
+            *
+                List<String> getHeaders();
+                int getBodyOffset();
+                short getStatusCode();
+                List<ICookie> getCookies();
+                String getStatedMimeType();
+                String getInferredMimeType();
+            *
+            ** IExtensionHelpers    helper **
+            *
+                String urlDecode(String data);
+                String urlEncode(String data);
+                byte[] urlDecode(byte[] data);
+                byte[] urlEncode(byte[] data);
+                byte[] base64Decode(String data);
+                byte[] base64Decode(byte[] data);
+                String base64Encode(String data);
+                String base64Encode(byte[] data);
+                byte[] stringToBytes(String data);
+                String bytesToString(byte[] data);
+                   \s
+                IRequestInfo analyzeRequest(IHttpRequestResponse request);
+                IRequestInfo analyzeRequest(IHttpService httpService, byte[] request);
+                IRequestInfo analyzeRequest(byte[] request);
+                IResponseInfo analyzeResponse(byte[] response);
+
+                byte[] addParameter(byte[] request, IParameter parameter);
+                byte[] removeParameter(byte[] request, IParameter parameter);
+                byte[] updateParameter(byte[] request, IParameter parameter);
+                IParameter buildParameter(String name, String value, byte type);
+                IParameter getRequestParameter(byte[] request, String parameterName);
+            *
+
+            ** 处理中文 **
+            *
+            chinese_string = helper.urlDecode("%E7%99%BE%E5%BA%A6").decode("utf8"))
+            *
+
+            ** 笔记处 **
+            print dir(OBJECT) # 查看方法
+
+            """;
 
 
     public Customized() {
@@ -159,7 +271,7 @@ public class Customized extends JPanel{
         textEditor = new RSyntaxTextArea();
         textEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
         textEditor.setAntiAliasingEnabled(true);
-        textEditor.isAutoIndentEnabled();
+        textEditor.setAutoIndentEnabled(true); //
         textEditor.setPaintTabLines(true);
         textEditor.setTabSize(4);
         textEditor.setTabsEmulated(true);
@@ -224,117 +336,13 @@ public class Customized extends JPanel{
 
     public void loadConfig(IBurpExtenderCallbacks callbacks){
         String myCode = callbacks.loadExtensionSetting("code");
-        if(myCode != null){
-            textEditor.setText(myCode);
-        }else{
-            textEditor.setText(defaultCode);
-        }
+        textEditor.setText(Objects.requireNonNullElse(myCode, defaultCode));
         String docs = callbacks.loadExtensionSetting("docs");
-        if(docs != null){
+        if(!Objects.equals(docs, "")){
             docsEditor.setText(docs);
         }else{
-            String docs1 = "# https://github.com/PortSwigger/example-event-listeners/blob/master/python/EventListeners.py\n" +
-                    "\n" +
-                    "# Notice\n" +
-                    "\n" +
-                    "## To create a byte-compatible object to pass to the Burp Extender APIs:\n" +
-                    "```\n" +
-                    "    bytearray(\"foo\") # => new byte[] {'f', 'o', 'o'}\n" +
-                    "```\n" +
-                    "## To convert an existing list to a Java array:\n" +
-                    "```\n" +
-                    "    from jarray import array\n" +
-                    "    array([1, 2, 3], 'i') # => new int[] {1, 2, 3}\n" +
-                    "    # 'i' is integer\n" +
-                    "```\n" +
-                    "\n" +
-                    "## Useful java classes\n" +
-                    "```\n" +
-                    "from burp import CryptUtils, BurpExtender\n" +
-                    "\n" +
-                    "// ECB Mode iv need be None\n" +
-                    "// @MODE\tENCRYPT_MODE = 1; @DECRYPT_MODE = 2;\n" +
-                    "// @alg\n" +
-                    "//\tAES/CBC/PKCS5Padding\n" +
-                    "//\tAES/ECB/PKCS5Padding\n" +
-                    "//\tAES/CBC/NoPadding\n" +
-                    "//\tAES/ECB/NoPadding\n" +
-                    "\n" +
-                    "byte[] CryptUtils.AESEncrypt(int MODE,String alg, byte[] key, byte[] plainText, byte[] iv)\n" +
-                    "\n" +
-                    "String BurpExtender.bytesToHex(byte[] b)\n" +
-                    "byte[] BurpExtender.hexToBytes(String s)\n" +
-                    "\n" +
-                    "eg.\n" +
-                    "\tCryptUtils.AESEncrypt(1, \"AES/ECB/PKCS5Padding\",b\"aaaaaaaaaaaaaaaa\",b'plainText',None)\n" +
-                    "\tprint(BurpExtender.byteToHex(b'abc'))\n" +
-                    "```\n" +
-                    "\n" +
-                    "## Look for more api docs.\n" +
-                    " >> Burp Suite -> Extender -> APIs\n" +
-                    " \n" +
-                    "---\n" +
-                    "** boolean  messageIsRequest **\n" +
-                    "\n" +
-                    "** IHttpRequestResponse  messageInfo **\n" +
-                    "*\n" +
-                    "     byte[] getRequest();\n" +
-                    "     byte[] getResponse();\n" +
-                    "     String getComment();\n" +
-                    "     void setRequest(byte[] message);\n" +
-                    "     void setResponse(byte[] message);\n" +
-                    "*\n" +
-                    "** IRequestInfo reqInfo **\n" +
-                    "*\n" +
-                    "    static final byte CONTENT_TYPE_NONE = 0;\n" +
-                    "    static final byte CONTENT_TYPE_URL_ENCODED = 1;\n" +
-                    "    static final byte CONTENT_TYPE_MULTIPART = 2;\n" +
-                    "    static final byte CONTENT_TYPE_XML = 3;\n" +
-                    "    static final byte CONTENT_TYPE_JSON = 4;\n" +
-                    "    static final byte CONTENT_TYPE_AMF = 5;\n" +
-                    "    static final byte CONTENT_TYPE_UNKNOWN = -1;\n" +
-                    "    String getMethod();\n" +
-                    "    URL getUrl();\n" +
-                    "    List<String> getHeaders();\n" +
-                    "    List<IParameter> getParameters();\n" +
-                    "    int getBodyOffset();\n" +
-                    "    byte getContentType();\n" +
-                    "*\n" +
-                    "** IResponseInfo respInfo **\n" +
-                    "*\n" +
-                    "    List<String> getHeaders();\n" +
-                    "    int getBodyOffset();\n" +
-                    "    short getStatusCode();\n" +
-                    "    List<ICookie> getCookies();\n" +
-                    "    String getStatedMimeType();\n" +
-                    "    String getInferredMimeType();\n" +
-                    "*\n" +
-                    "** IExtensionHelpers    helper **\n" +
-                    "*\n" +
-                    "    String urlDecode(String data);\n" +
-                    "    String urlEncode(String data);\n" +
-                    "    byte[] urlDecode(byte[] data);\n" +
-                    "    byte[] urlEncode(byte[] data);\n" +
-                    "    byte[] base64Decode(String data);\n" +
-                    "    byte[] base64Decode(byte[] data);\n" +
-                    "    String base64Encode(String data);\n" +
-                    "    String base64Encode(byte[] data);\n" +
-                    "    byte[] stringToBytes(String data);\n" +
-                    "    String bytesToString(byte[] data);\n" +
-                    "        \n" +
-                    "    IRequestInfo analyzeRequest(IHttpRequestResponse request);\n" +
-                    "    IRequestInfo analyzeRequest(IHttpService httpService, byte[] request);\n" +
-                    "    IRequestInfo analyzeRequest(byte[] request);\n" +
-                    "    IResponseInfo analyzeResponse(byte[] response);\n" +
-                    "\n" +
-                    "    byte[] addParameter(byte[] request, IParameter parameter);\n" +
-                    "    byte[] removeParameter(byte[] request, IParameter parameter);\n" +
-                    "    byte[] updateParameter(byte[] request, IParameter parameter);\n" +
-                    "    IParameter buildParameter(String name, String value, byte type);\n" +
-                    "    IParameter getRequestParameter(byte[] request, String parameterName);\n" +
-                    "*   \n" +
-                    "---\n";
-            docsEditor.setText(docs1);
+
+            docsEditor.setText(defaultDocs);
         }
     }
 }

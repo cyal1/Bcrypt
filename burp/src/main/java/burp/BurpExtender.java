@@ -1,5 +1,6 @@
 package burp;
 
+import javax.script.ScriptException;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -21,7 +22,6 @@ public class BurpExtender implements IBurpExtender,ITab,IExtensionStateListener,
         stderr = new PrintWriter(callbacks.getStderr(), true);
         helpers = callbacks.getHelpers();
         this.callbacks = callbacks;
-
         SwingUtilities.invokeLater(() -> {
             tabPane = new JTabbedPane();
 
@@ -41,7 +41,7 @@ public class BurpExtender implements IBurpExtender,ITab,IExtensionStateListener,
             callbacks.setExtensionName("Bcrypt");
             callbacks.addSuiteTab(BurpExtender.this);
             callbacks.registerContextMenuFactory(new Send2XrayListener(this.send2xray));
-            callbacks.registerContextMenuFactory(new ModifyRequest());
+            callbacks.registerContextMenuFactory(new ConvertContentType());
             callbacks.registerExtensionStateListener(BurpExtender.this);
             callbacks.registerHttpListener(BurpExtender.this);
             callbacks.registerProxyListener(BurpExtender.this);
