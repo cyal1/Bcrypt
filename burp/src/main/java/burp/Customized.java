@@ -336,7 +336,11 @@ public class Customized extends JPanel{
 
     public void loadConfig(IBurpExtenderCallbacks callbacks){
         String myCode = callbacks.loadExtensionSetting("code");
-        textEditor.setText(Objects.requireNonNullElse(myCode, defaultCode));
+        if (!Objects.equals(myCode, "")){
+            textEditor.setText(myCode);
+        }else{
+            textEditor.setText(this.defaultCode);
+        }
         String docs = callbacks.loadExtensionSetting("docs");
         if(!Objects.equals(docs, "")){
             docsEditor.setText(docs);
@@ -344,5 +348,6 @@ public class Customized extends JPanel{
 
             docsEditor.setText(defaultDocs);
         }
+        BurpExtender.stdout.println("Customized Configuration loaded.");
     }
 }

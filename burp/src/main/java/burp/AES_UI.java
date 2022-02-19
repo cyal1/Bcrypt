@@ -103,6 +103,7 @@ class AES_UI extends JPanel{
         if(host != null){
             targetHostTextField.setText(host);
         }
+        BurpExtender.stdout.println("AES Configuration loaded.");
     }
 
     public AES_UI() {
