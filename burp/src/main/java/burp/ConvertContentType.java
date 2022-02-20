@@ -498,4 +498,9 @@ public class ConvertContentType implements IContextMenuFactory {
         JSObject obj = (JSObject)JsEngine.engine.eval("JSON.parse(json_string)");
         return (String) JsEngine.invocable.invokeFunction("convert2qs", obj);
     }
+
+//    public static void main(String[] args) throws ScriptException, NoSuchMethodException {
+//        System.out.println(new ConvertContentType().qs2JSON("a=1&b&c=2&d=%E4%B8%AD%E6%96%87"));
+//        System.out.println(new ConvertContentType().JSON2qs("{\"a\":\"1\",\"b\":null,\"c\":\"2\",\"d\":\"中文\"}"));
+//    }
 }
